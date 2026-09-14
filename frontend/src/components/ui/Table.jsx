@@ -8,7 +8,7 @@ export default function Table({ columns, rows, emptyTitle = "Nothing here yet", 
         <thead>
           <tr>
             {columns.map((c) => (
-              <th key={c.key} className="body-font" style={{ textAlign: "left", fontSize: 11, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", color: "var(--ink-600)", padding: "13px 22px", background: "var(--canvas)", borderBottom: "1px solid var(--line)", whiteSpace: "nowrap" }}>
+              <th key={c.key} className="body-font" style={{ textAlign: "left", fontSize: 11, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", color: "var(--ink-600)", padding: "13px 22px", background: "var(--canvas)", borderBottom: "1px solid var(--line)", whiteSpace: "nowrap", width: c.width }}>
                 {c.label}
               </th>
             ))}

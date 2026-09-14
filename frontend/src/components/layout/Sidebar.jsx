@@ -1,16 +1,21 @@
 import React from "react";
 import { LogOut } from "lucide-react";
 import Logo from "./Logo";
+import ProfileMenu from "./ProfileMenu";
 
-export default function Sidebar({ page, setPage, items, onLogout }) {
+export default function Sidebar({ page, setPage, items, onLogout, userName = "User", userRole, sectionLabel = "Menu" }) {
   return (
-    <aside className="sidebar-desktop" style={{ background: "#fff", borderRight: "1px solid var(--line)", display: "flex", flexDirection: "column", padding: "22px 16px", position: "sticky", top: 0, height: "100vh" }}>
-      <div style={{ padding: "0 8px", marginBottom: 30 }}>
+    <aside className="sidebar-desktop" style={{ background: "#fff", borderRight: "1px solid var(--line)", flexDirection: "column", padding: "22px 16px", position: "sticky", top: 0, height: "100vh" }}>
+      <div style={{ padding: "0 8px", marginBottom: 18 }}>
         <Logo />
       </div>
 
+      <div style={{ marginBottom: 22 }}>
+        <ProfileMenu name={userName} role={userRole} onLogout={onLogout} />
+      </div>
+
       <div className="body-font" style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".06em", color: "var(--ink-400)", textTransform: "uppercase", padding: "0 12px", marginBottom: 10 }}>
-        Admin dashboard
+        {sectionLabel}
       </div>
 
       <nav style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1 }}>

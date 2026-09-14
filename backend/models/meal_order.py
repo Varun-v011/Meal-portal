@@ -1,3 +1,7 @@
+from datetime import datetime, timezone
+from .models import db
+
+
 class MealOrder(db.Model):
     __tablename__ = "meal_orders"
 

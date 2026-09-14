@@ -13,7 +13,7 @@ export default function Select({ value, onChange, options, placeholder = "Select
       >
         <option value="">{placeholder}</option>
         {options.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value} disabled={o.disabled}>{o.label}</option>
         ))}
       </select>
       <ChevronDown size={16} style={{ position: "absolute", right: 12, top: 13, color: "var(--ink-400)", pointerEvents: "none" }} />

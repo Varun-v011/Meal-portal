@@ -55,6 +55,7 @@ body{ margin:0; background:var(--canvas); }
 .app-shell{ padding-bottom:0; }
 .nav-tabs{ display:flex; gap:4px; flex-wrap:wrap; }
 .nav-tabs-mobile{ display:none; }
+.mobile-header{ display:none; }
 .page-wrap{ max-width:1120px; margin:0 auto; padding:26px 24px 60px; }
 .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
 .grid-loading{ display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start; }
@@ -66,11 +67,13 @@ body{ margin:0; background:var(--canvas); }
 .filter-left{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
 .card-pad{ padding:22px; }
 .header-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
+.order-form-gap{ display:grid; gap:20px; }
+.upload-card{ display:flex; gap:18px; padding:18px; background:var(--canvas); border-radius:var(--radius-md); border:1px solid var(--line); flex-wrap:wrap; align-items:center; }
 
 /* ---------- Admin shell (sidebar layout) ---------- */
-.admin-shell{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+.sidebar-shell{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
 .sidebar-desktop{ display:flex; }
-.admin-content{ min-width:0; }
+.sidebar-content{ min-width:0; }
 
 /* ---------- Auth screen wrapper (fills viewport, no phone-in-desktop framing) ---------- */
 .auth-screen{ min-height:100vh; width:100%; }
@@ -82,12 +85,16 @@ body{ margin:0; background:var(--canvas); }
   .auth-brand{ min-height:220px; padding:28px 24px; }
   .auth-brand h1{ font-size:24px !important; }
   .auth-form-wrap{ padding:24px 20px 40px; }
-  .page-wrap{ padding:16px 14px 90px; }
-  .card-pad{ padding:16px; }
-  .qty-for-grid{ grid-template-columns:1fr; }
+  .page-wrap{ padding:12px 14px 88px; }
+  .card-pad{ padding:14px; }
+  .qty-for-grid{ grid-template-columns:1fr; gap:12px; }
   .nav-tabs{ display:none; }
   .nav-tabs-mobile{ display:flex; }
+  .mobile-header{ display:flex; }
   .app-shell{ padding-bottom:70px; }
-  .admin-shell{ grid-template-columns:1fr; }
+  .sidebar-shell{ grid-template-columns:1fr; align-content:start; }
   .sidebar-desktop{ display:none; }
+  .header-row{ margin-bottom:12px; }
+  .order-form-gap{ gap:12px; }
+  .upload-card{ padding:12px; gap:10px; }
 }

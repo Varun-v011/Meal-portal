@@ -1,11 +1,19 @@
 import React from "react";
 import { Sidebar, BottomNav, ADMIN_NAV_ITEMS } from "../components/layout";
 
-export default function AdminLayout({ page, setPage, onLogout, children, title, subtitle }) {
+export default function AdminLayout({ page, setPage, onLogout, children, title, subtitle, userName = "Admin User", userRole = "Administrator" }) {
   return (
-    <div className="admin-shell app-shell" style={{ background: "var(--canvas)" }}>
-      <Sidebar page={page} setPage={setPage} items={ADMIN_NAV_ITEMS} onLogout={onLogout} />
-      <div className="admin-content">
+    <div className="sidebar-shell app-shell" style={{ background: "var(--canvas)" }}>
+      <Sidebar
+        page={page}
+        setPage={setPage}
+        items={ADMIN_NAV_ITEMS}
+        onLogout={onLogout}
+        userName={userName}
+        userRole={userRole}
+        sectionLabel="Admin dashboard"
+      />
+      <div className="sidebar-content">
         <div className="page-wrap">
           <div className="header-row">
             <div>

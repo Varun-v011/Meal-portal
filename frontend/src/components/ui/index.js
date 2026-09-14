@@ -9,3 +9,5 @@ export { default as StatusBadge } from "./StatusBadge";
 export { default as EmptyState } from "./EmptyState";
 export { default as Table } from "./Table";
 export { default as inputBase } from "./inputBase";
+export { default as Switch } from "./Switch";
+export { default as ImagePreviewModal } from "./ImagePreviewModal";

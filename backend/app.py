@@ -1,11 +1,10 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
-from models import db, User
-from order_routes import order_bp
-
-
+from models import db
+from routes import register_routes
+from models import MealSettings
+from routes import settings_bp
 
 
 app = Flask(__name__)
@@ -20,7 +19,13 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-app.register_blueprint(order_bp)
+register_routes(app)
+
+with app.app_context():
+    db.create_all()
+    MealSettings.seed_defaults()
+
+app.register_blueprint(settings_bp)
 
 @app.route('/api/health', methods=['GET'])
 def health():
