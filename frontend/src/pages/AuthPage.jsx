@@ -133,29 +133,40 @@ export default function AuthPage({ onLogin }) {
     <div className="auth-shell auth-screen">
       <div className="auth-brand" style={{ background: "var(--navy-950)", position: "relative", overflow: "hidden", display: "flex", flexDirection: isMobile ? "row" : "column", alignItems: isMobile ? "center" : "stretch", justifyContent: isMobile ? "flex-start" : "flex-start" }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.5, backgroundImage: "radial-gradient(circle at 20% 20%, rgba(201,152,46,.18), transparent 40%), radial-gradient(circle at 80% 70%, rgba(41,56,115,.5), transparent 45%)" }} />
-        <div style={{ position: "relative" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {isMobile && (
+          <div style={{ position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Utensils size={16} color="var(--brass-400)" />
+              </div>
+            </div>
+          </div>
+        )}
+        {!isMobile && (
+          // Logo sits out of flow so it doesn't push the hero block down and
+          // throw off its vertical centering relative to the login card.
+          <div style={{ position: "absolute", top: 36, left: 44, zIndex: 1 }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Utensils size={16} color="var(--brass-400)" />
             </div>
           </div>
-        </div>
+        )}
         {!isMobile && (
           <div className="auth-hero-desktop" style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-              <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 2 }}>
+              <div>
                 <h1 className="brand-font" style={{ color: "#fff", fontSize: 34, lineHeight: 1.2, fontWeight: 700, margin: 0 }}>
                   Meal Portal
                 </h1>
-                <p className="body-font" style={{ color: "rgba(255,255,255,.6)", fontSize: 14.5, marginTop: 14 }}>
+                <p className="body-font" style={{ color: "rgba(255,255,255,.6)", fontSize: 14.5, marginTop: 8 }}>
                   Order, pay, and track your meals in one place.
                 </p>
               </div>
-              <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+              <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
                 <img
-                  src="./Mascot-meal.png"
+                  src="./Neyon-meal.png"
                   alt="NLCIL mascot"
-                  style={{ width: "100%", maxWidth: 340, display: "block", filter: "drop-shadow(0 10px 20px rgba(0,0,0,.4))" }}
+                  style={{ width: "auto", maxWidth: "85%", height: "32vh", maxHeight: 620, objectFit: "contain", display: "block", filter: "drop-shadow(0 10px 20px rgba(0,0,0,.4))" }}
                 />
               </div>
             </div>
