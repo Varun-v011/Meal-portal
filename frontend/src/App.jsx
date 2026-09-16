@@ -14,15 +14,15 @@ function formatTodayLong() {
 }
 
 const USER_TITLES = {
-  order: { title: "Meal Order", subtitle: formatTodayLong() },
-  myHistory: { title: "My History", subtitle: "Your past orders and their status" },
+  order: { title: "Meal order", subtitle: formatTodayLong() },
+  myHistory: { title: "My history", subtitle: "Your past orders and their status" },
 };
 
 const ADMIN_TITLES = {
-  pending: { title: "Pending Orders", subtitle: "Awaiting confirmation" },
-  confirmed: { title: "Confirmed Orders", subtitle: formatTodayLong() },
-  history: { title: "All Order History", subtitle: "Every staff member's orders" },
-  mealSettings: { title: "Meal Settings", subtitle: "Availability, pricing, and closing times" },
+  pending: { title: "Pending orders", subtitle: "Awaiting confirmation" },
+  confirmed: { title: "Confirmed today", subtitle: formatTodayLong() },
+  history: { title: "All order history",},
+  mealSettings: { title: "Meal settings", subtitle: "Availability, pricing, and closing times" },
 };
 
 export default function App() {
@@ -51,10 +51,11 @@ export default function App() {
         subtitle={subtitle}
         userName={currentUser.name}
         userRole="Administrator"
+        userMobile={currentUser.mobile_number}
       >
         {adminPage === "pending" && <PendingPage adminId={currentUser.id} />}
         {adminPage === "confirmed" && <ConfirmedPage adminId={currentUser.id} />}
-        {adminPage === "history" && <HistoryPage title="All staff order history" showEmployeeColumn currentUserId={currentUser.id} />}
+        {adminPage === "history" && <HistoryPage title="All Order History" showEmployeeColumn currentUserId={currentUser.id} hidePending />}
         {adminPage === "mealSettings" && <MealSettingsPage adminId={currentUser.id} />}
       </AdminLayout>
     );
@@ -71,10 +72,10 @@ export default function App() {
       subtitle={subtitle}
       userName={currentUser.name}
       userRole={currentUser.department || "Staff"}
-      contentMaxWidth={userPage === "order" ? 720 : undefined}
+      userMobile={currentUser.mobile_number}
     >
       {userPage === "order" && <MealOrderPage userId={currentUser.id} />}
-      {userPage === "myHistory" && <HistoryPage title="My Order History" showEmployeeColumn={false} currentUserId={currentUser.id} showSearch={false} showFilters={false} />}
+      {userPage === "myHistory" && <HistoryPage title="My order history" showEmployeeColumn={false} currentUserId={currentUser.id} showSearch={false} showFilters={false} />}
     </UserLayout>
   );
 }

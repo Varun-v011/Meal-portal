@@ -1,6 +1,6 @@
 // Update these with your real details.
 export const UPI_ID = "vyapar.178284819699@hdfcbank"; // <-- replace with your actual UPI ID
-export const PAYEE_NAME = "IT Mess Portal";
+export const PAYEE_NAME = "NLCIL Meal Portal";
 
 /**
  * Builds a standard UPI deep link. Any UPI app (GPay, PhonePe, Paytm, BHIM, etc.)

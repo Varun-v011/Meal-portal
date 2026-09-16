@@ -3,7 +3,7 @@ import { LogOut } from "lucide-react";
 import Logo from "./Logo";
 import ProfileMenu from "./ProfileMenu";
 
-export default function Sidebar({ page, setPage, items, onLogout, userName = "User", userRole, sectionLabel = "Menu" }) {
+export default function Sidebar({ page, setPage, items, onLogout, userName = "User", userRole, userMobile, sectionLabel = "Menu" }) {
   return (
     <aside className="sidebar-desktop" style={{ background: "#fff", borderRight: "1px solid var(--line)", flexDirection: "column", padding: "22px 16px", position: "sticky", top: 0, height: "100vh" }}>
       <div style={{ padding: "0 8px", marginBottom: 18 }}>
@@ -11,7 +11,7 @@ export default function Sidebar({ page, setPage, items, onLogout, userName = "Us
       </div>
 
       <div style={{ marginBottom: 22 }}>
-        <ProfileMenu name={userName} role={userRole} onLogout={onLogout} />
+        <ProfileMenu name={userName} mobile={userMobile} onLogout={onLogout} />
       </div>
 
       <div className="body-font" style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".06em", color: "var(--ink-400)", textTransform: "uppercase", padding: "0 12px", marginBottom: 10 }}>

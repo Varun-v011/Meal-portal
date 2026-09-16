@@ -1,7 +1,10 @@
 import React from "react";
+import ProfileMenu from "./ProfileMenu";
 
-/** App-style bottom tab bar for mobile widths. Pass role-specific `items`. */
-export default function BottomNav({ page, setPage, items = [] }) {
+/** App-style bottom tab bar for mobile widths. Pass role-specific `items`,
+ * plus the current user's name/role and a logout handler so the trailing
+ * avatar can show a name + Logout popup. */
+export default function BottomNav({ page, setPage, items = [], userName, userRole, onLogout }) {
   if (items.length === 0) return null;
   return (
     <div
@@ -12,6 +15,7 @@ export default function BottomNav({ page, setPage, items = [] }) {
         justifyContent: "space-around", alignItems: "center",
         padding: "8px 6px calc(8px + env(safe-area-inset-bottom))",
         boxShadow: "0 -6px 18px -12px rgba(15,23,48,.25)",
+        gap: 4,
       }}
     >
       {items.map((it) => {
@@ -29,6 +33,11 @@ export default function BottomNav({ page, setPage, items = [] }) {
           </button>
         );
       })}
+      {onLogout && (
+        <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <ProfileMenu variant="avatar" align="right" name={userName} role={userRole} onLogout={onLogout} />
+        </div>
+      )}
     </div>
   );
 }

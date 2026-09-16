@@ -114,12 +114,12 @@ export default function PendingPage({ adminId }) {
 
   const rows = orders.map((o) => ({
     ...o,
-    employee: `${o.employee}${o.worker_id ? ` (${o.worker_id})` : ""}`,
+    employee: o.employee,
   }));
 
   return (
     <Card>
-      <CardHeader title="Pending Meal Orders" icon={Clock} />
+      <CardHeader title="Pending meal orders" icon={Clock} />
 
       {error && (
         <div className="body-font" style={{ padding: "12px 22px", fontSize: 13, color: "var(--bad-600)", borderBottom: "1px solid var(--line)" }}>
@@ -132,7 +132,7 @@ export default function PendingPage({ adminId }) {
       ) : (
         <Table
           columns={[
-            { key: "employee", label: "Employee" },
+            { key: "employee", label: "Name" },
             { key: "meal", label: "Meal type", render: (r) => MEAL_LABELS[r.meal_type] || r.meal_type },
             { key: "quantity", label: "Qty" },
             { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },

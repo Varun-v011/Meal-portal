@@ -26,12 +26,17 @@ const DEFAULT_FROM = todayIso();
  * `showEmployeeColumn` to toggle the Employee column and `title`
  * to relabel the card for context. Pass `userId` to scope to one
  * worker's own orders; omit it (admin) to see everyone's.
+ *
+ * `hidePending`: pending orders already have their own dedicated page
+ * (admin's Pending Orders) — pass this on the admin History view so
+ * they aren't duplicated here. Left false for "My History" so workers
+ * can still see their own pending orders in their personal history.
  */
-export default function HistoryPage({ title = "Meal order history", showEmployeeColumn = true, currentUserId, showSearch = true, showFilters = true }) {
+export default function HistoryPage({ title = "Meal order history", showEmployeeColumn = true, currentUserId, showSearch = true, showFilters = true, hidePending = false }) {
   const [from, setFrom] = useState(DEFAULT_FROM);
   const [to, setTo] = useState(todayIso());
-  const [appliedFrom, setAppliedFrom] = useState(DEFAULT_FROM);
-  const [appliedTo, setAppliedTo] = useState(todayIso());
+  const [appliedFrom, setAppliedFrom] = useState(showFilters ? DEFAULT_FROM : null);
+  const [appliedTo, setAppliedTo] = useState(showFilters ? todayIso() : null);
   const [search, setSearch] = useState("");
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,12 +84,13 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
   };
 
   const filteredRows = useMemo(() => {
+    const base = hidePending ? orders.filter((o) => o.status !== "pending") : orders;
     const term = search.trim().toLowerCase();
-    if (!term) return orders;
-    return orders.filter((o) => {
+    if (!term) return base;
+    return base.filter((o) => {
       const haystack = [
         o.employee,
-        o.worker_id,
+        o.department,
         MEAL_LABELS[o.meal_type] || o.meal_type,
         o.status,
       ]
@@ -93,7 +99,7 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
         .toLowerCase();
       return haystack.includes(term);
     });
-  }, [orders, search]);
+  }, [orders, search, hidePending]);
 
   // Rejected orders never collected payment, so they shouldn't count toward
   // the qty/total summary — only pending + confirmed orders count.
@@ -101,7 +107,8 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
   const totalAmount = filteredRows.reduce((sum, o) => (o.status === "rejected" ? sum : sum + Number(o.amount || 0)), 0);
 
   const columns = [
-    ...(showEmployeeColumn ? [{ key: "employee", label: "Employee", render: (r) => `${r.employee}${r.worker_id ? ` (${r.worker_id})` : ""}` }] : []),
+    ...(showEmployeeColumn ? [{ key: "employee", label: "Name", render: (r) => r.employee }] : []),
+    ...(showEmployeeColumn ? [{ key: "department", label: "Department", render: (r) => r.department || "—" }] : []),
     { key: "meal", label: "Meal type", render: (r) => MEAL_LABELS[r.meal_type] || r.meal_type },
     { key: "qty", label: "Qty", render: (r) => r.quantity },
     { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
@@ -142,7 +149,7 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
             </div>
             {showSearch && (
               <div style={{ width: 220 }}>
-                <TextInput icon={Search} placeholder="Search name, ID, meal..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <TextInput icon={Search} placeholder="Search name, department, meal..." value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             )}
             <Button size="sm" icon={Search} onClick={handleSearch} disabled={loading}>Search</Button>

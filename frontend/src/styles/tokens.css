@@ -68,6 +68,7 @@ body{ margin:0; background:var(--canvas); }
 .card-pad{ padding:22px; }
 .header-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
 .order-form-gap{ display:grid; gap:20px; }
+.field-note{ margin-top:-12px; }
 .upload-card{ display:flex; gap:18px; padding:18px; background:var(--canvas); border-radius:var(--radius-md); border:1px solid var(--line); flex-wrap:wrap; align-items:center; }
 
 /* ---------- Admin shell (sidebar layout) ---------- */
@@ -81,8 +82,8 @@ body{ margin:0; background:var(--canvas); }
 @media (max-width: 860px){
   .grid-2, .grid-loading{ grid-template-columns:1fr; }
   table th, table td{ padding-left:14px !important; padding-right:14px !important; }
-  .auth-shell{ grid-template-columns:1fr; }
-  .auth-brand{ min-height:220px; padding:28px 24px; }
+  .auth-shell{ grid-template-columns:1fr; align-content:start; }
+  .auth-brand{ min-height:auto; padding:20px 24px; }
   .auth-brand h1{ font-size:24px !important; }
   .auth-form-wrap{ padding:24px 20px 40px; }
   .page-wrap{ padding:12px 14px 88px; }
@@ -96,5 +97,6 @@ body{ margin:0; background:var(--canvas); }
   .sidebar-desktop{ display:none; }
   .header-row{ margin-bottom:12px; }
   .order-form-gap{ gap:12px; }
+  .field-note{ margin-top:0; }
   .upload-card{ padding:12px; gap:10px; }
 }

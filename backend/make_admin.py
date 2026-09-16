@@ -5,17 +5,17 @@ Edit WORKER_ID below, then run:
 """
 from sqlalchemy import create_engine, text
 
-WORKER_ID = "11072"  # <-- change this to the actual worker_id you registered
+mobile_number = "7010685725"  # <-- change this to the actual mobile number you registered
 
 engine = create_engine("mysql+pymysql://web_user:admin123@127.0.0.1:3306/web_db")
 
 with engine.connect() as conn:
     result = conn.execute(
-        text("UPDATE users SET role = 'admin' WHERE worker_id = :wid"),
-        {"wid": WORKER_ID},
+        text("UPDATE users SET role = 'admin' WHERE mobile_number = :mobile_number"),
+        {"mobile_number": mobile_number},
     )
     conn.commit()
     if result.rowcount == 0:
-        print(f"No user found with worker_id={WORKER_ID}. Nothing changed.")
+        print(f"No user found with mobile_number={mobile_number}. Nothing changed.")
     else:
-        print(f"Done. {WORKER_ID} is now an admin.")
+        print(f"Done. {mobile_number} is now an admin.")

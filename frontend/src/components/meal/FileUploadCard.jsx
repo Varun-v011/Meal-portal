@@ -1,10 +1,11 @@
 import React, { useRef } from "react";
-import { Upload, IndianRupee } from "lucide-react";
+import { Upload } from "lucide-react";
 import Button from "../ui/Button";
+import UpiLogo from "../ui/UpiLogo";
 import useIsMobile from "../../hooks/useIsMobile";
 import { buildUpiLink, buildUpiQrImageUrl } from "../../config/payment";
 
-export default function FileUploadCard({ file, onFile, qrLabel = "IT MESS PORTAL", total = 0, note }) {
+export default function FileUploadCard({ file, onFile, qrLabel = "Thangam Residency", total = 0, note }) {
   const inputRef = useRef(null);
   const isMobile = useIsMobile();
 
@@ -16,7 +17,7 @@ export default function FileUploadCard({ file, onFile, qrLabel = "IT MESS PORTAL
       {isMobile ? (
         <Button
           variant="secondary"
-          icon={IndianRupee}
+          icon={UpiLogo}
           onClick={() => { window.location.href = upiLink; }}
           disabled={total <= 0}
           full
@@ -41,7 +42,7 @@ export default function FileUploadCard({ file, onFile, qrLabel = "IT MESS PORTAL
           <span className="body-font" style={{ fontSize: 12.5, color: "var(--ink-400)" }}>{file?.name || "No file chosen"}</span>
         </div>
         <div className="body-font" style={{ fontSize: 11.5, color: "var(--ink-400)", marginTop: 10 }}>Accepted formats: JPG, JPEG, PNG</div>
-        {/* <div className="brand-font" style={{ fontSize: 15, fontWeight: 700, color: "var(--brass-600)", marginTop: 10 }}>Total: ₹{total}</div> */}
+        <div className="brand-font" style={{ fontSize: 15, fontWeight: 700, color: "var(--brass-600)", marginTop: 10 }}>Total: ₹{total}</div>
       </div>
     </div>
   );

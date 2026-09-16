@@ -76,6 +76,17 @@ export default function MealOrderPage({ userId }) {
     return now > closing;
   };
 
+  // Specifically "past its closing time today" (as opposed to admin-disabled),
+  // so the hint below can say exactly why it's missing from the dropdown.
+  const isPastClosingTime = (row) => {
+    if (!row || !row.is_available || day !== "today" || !row.closing_time) return false;
+    const now = new Date();
+    const [h, m] = row.closing_time.split(":").map(Number);
+    const closing = new Date();
+    closing.setHours(h, m, 0, 0);
+    return now > closing;
+  };
+
   const options = useMemo(() => {
     return Object.keys(MEAL_LABELS)
       .filter((mealType) => !isClosedNow(settings?.[mealType]))
@@ -85,6 +96,14 @@ export default function MealOrderPage({ userId }) {
         const label = `${MEAL_LABELS[mealType]}${price != null ? ` — ₹${price}` : ""}`;
         return { value: mealType, label };
       });
+  }, [settings, day]);
+
+  // Meals that dropped off the list specifically because their closing time
+  // passed today — surfaced as a red hint so it's clear why they're missing.
+  const closedForToday = useMemo(() => {
+    if (!settings) return [];
+    return Object.keys(MEAL_LABELS).filter((mealType) => isPastClosingTime(settings[mealType]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings, day]);
 
   // If the selected meal becomes closed (e.g. user switches day, or settings
@@ -140,13 +159,13 @@ export default function MealOrderPage({ userId }) {
   return (
     <div>
       <Card>
-        <CardHeader title="New meal order" icon={Utensils} />
+        <CardHeader title="New Meal Order" icon={Utensils} />
         <div className="card-pad order-form-gap">
           <Field label="Order day">
             <ToggleTabs value={day} onChange={setDay} options={[{ value: "today", label: "Today" }, { value: "tomorrow", label: "Tomorrow" }]} />
           </Field>
 
-          <Field label="Meal category">
+          <Field label="Meal Category">
             <Select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -154,8 +173,15 @@ export default function MealOrderPage({ userId }) {
               placeholder={loadingSettings ? "Loading meals..." : "Choose a meal"}
             />
           </Field>
+          {closedForToday.length > 0 && (
+            <div className="body-font field-note" style={{ fontSize: 12.5, color: "var(--bad-600)", fontWeight: 600 }}>
+              {closedForToday
+                .map((mt) => `${MEAL_LABELS[mt]} closed today at ${formatTime(settings[mt].closing_time)}`)
+                .join(" · ")}
+            </div>
+          )}
           {category && !closedNotice && (
-            <div className="body-font" style={{ fontSize: 13, color: "var(--ink-600)", marginTop: -12 }}>
+            <div className="body-font field-note" style={{ fontSize: 13, color: "var(--ink-600)" }}>
               Price: <b style={{ color: "var(--navy-900)" }}>₹{price}</b> per plate
               {selectedRow?.closing_time && day === "today" && (
                 <span> · Closes at {formatTime(selectedRow.closing_time)}</span>
@@ -163,7 +189,7 @@ export default function MealOrderPage({ userId }) {
             </div>
           )}
           {closedNotice && (
-            <div className="body-font" style={{ fontSize: 12.5, color: "var(--bad-600)", marginTop: -12 }}>
+            <div className="body-font field-note" style={{ fontSize: 12.5, color: "var(--bad-600)" }}>
               {MEAL_LABELS[category]} is no longer available for {day === "today" ? "today" : "tomorrow"}.
             </div>
           )}

@@ -170,7 +170,7 @@ def _order_dict(o):
     return {
         "id": o.id,
         "employee": o.user.name,
-        "worker_id": o.user.worker_id,
+        "department": o.user.department,
         "meal_type": o.meal_type,
         "quantity": o.quantity,
         "amount": str(o.amount),
