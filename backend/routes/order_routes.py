@@ -2,10 +2,12 @@ from flask import Blueprint, request, jsonify, current_app, send_from_directory,
 from werkzeug.utils import secure_filename
 from datetime import datetime, date
 from models import db, MealOrder, User
-from models import MealSettings
+from models import MealSettings, AppSettings
 import os, uuid
 from auth_utils import admin_required, login_required
+from datetime import timezone, timedelta
 
+IST = timezone(timedelta(hours=5, minutes=30))
 order_bp = Blueprint("orders", __name__, url_prefix="/api")
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads", "payment_screenshots")
@@ -23,7 +25,6 @@ def allowed_file(filename):
 def serve_upload(filename):
     uploads_root = os.path.join(os.getcwd(), "uploads")
     return send_from_directory(uploads_root, filename)
-
 @order_bp.route("/orders", methods=["POST"])
 def create_order():
     user_id = request.form.get("user_id")
@@ -62,18 +63,23 @@ def create_order():
         errors.append("Quantity must be between 1 and 10.")
     if not ordered_for:
         errors.append("Ordered-for date is required.")
+    screenshot_required = AppSettings.get().screenshot_required
     if not file or file.filename == "":
-        errors.append("Payment screenshot is required.")
+        if screenshot_required:
+            errors.append("Payment screenshot is required.")
     elif not allowed_file(file.filename):
         errors.append("Screenshot must be JPG, JPEG, or PNG.")
 
     if errors:
         return jsonify({"errors": errors}), 400
 
-    ext = file.filename.rsplit(".", 1)[1].lower()
-    filename = secure_filename(f"{uuid.uuid4().hex}.{ext}")
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(filepath)
+    screenshot_path = None
+    if file and file.filename != "":
+        ext = file.filename.rsplit(".", 1)[1].lower()
+        filename = secure_filename(f"{uuid.uuid4().hex}.{ext}")
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(filepath)
+        screenshot_path = f"payment_screenshots/{filename}"
 
     amount = float(settings.price) * quantity
 
@@ -84,15 +90,14 @@ def create_order():
         amount=amount,
         order_date=date.today(),
         ordered_for=ordered_for_date,
-        payment_screenshot=f"payment_screenshots/{filename}",
+        payment_screenshot=screenshot_path,
         status="pending",
     )
     db.session.add(order)
     db.session.commit()
 
     return jsonify({"message": "Order placed, pending confirmation.", "order_id": order.id}), 201
-
-
+    
 @order_bp.route("/orders/pending", methods=["GET"])
 @admin_required
 def pending_orders():
@@ -144,9 +149,9 @@ def order_history():
     start = request.args.get("from")
     end = request.args.get("to")
 
-    # Workers can only ever see their own orders, no matter what (or whether)
+    # staff can only ever see their own orders, no matter what (or whether)
     # a user_id query param is passed. Admins may pass one to scope to a
-    # single worker, or omit it to see everyone's history.
+    # single staff, or omit it to see everyone's history.
     if g.current_user.role == "admin":
         user_id = request.args.get("user_id")
     else:
@@ -167,15 +172,17 @@ def order_history():
 
 
 def _order_dict(o):
+    created_at_ist = o.created_at.replace(tzinfo=timezone.utc).astimezone(IST)
     return {
         "id": o.id,
         "employee": o.user.name,
         "department": o.user.department,
         "meal_type": o.meal_type,
         "quantity": o.quantity,
-        "amount": str(o.amount),
+        "amount": str(int(o.amount)),
         "order_date": o.order_date.isoformat(),
         "ordered_for": o.ordered_for.isoformat(),
+        "created_at": created_at_ist.strftime("%d.%m.%Y %H:%M"),
         "payment_screenshot": o.payment_screenshot,
         "status": o.status,
         "remarks": o.remarks,

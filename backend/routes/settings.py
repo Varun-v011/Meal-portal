@@ -3,6 +3,7 @@ from datetime import datetime
 from models import db
 from models import MealSettings
 from auth_utils import admin_required
+from models import MealSettings, AppSettings
 
 settings_bp = Blueprint("settings", __name__, url_prefix="/api")
 
@@ -62,3 +63,22 @@ def update_meal_settings(meal_type):
 
     db.session.commit()
     return jsonify({"message": "Meal settings updated.", "settings": row.to_dict()}), 200
+
+@settings_bp.route("/app-settings", methods=["GET"])
+def get_app_settings():
+    """Public — order form reads this to know if a payment screenshot
+    is currently required."""
+    return jsonify(AppSettings.get().to_dict()), 200
+
+
+@settings_bp.route("/app-settings", methods=["PUT"])
+@admin_required
+def update_app_settings():
+    data = request.get_json(silent=True) or {}
+    if "screenshot_required" not in data or not isinstance(data["screenshot_required"], bool):
+        return jsonify({"errors": ["screenshot_required must be true or false."]}), 400
+
+    row = AppSettings.get()
+    row.screenshot_required = data["screenshot_required"]
+    db.session.commit()
+    return jsonify({"message": "App settings updated.", "settings": row.to_dict()}), 200

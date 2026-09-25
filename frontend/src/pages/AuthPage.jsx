@@ -22,8 +22,19 @@ export default function AuthPage({ onLogin }) {
   const [resetDone, setResetDone] = useState(false);
   const [verified, setVerified] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [mobileShake, setMobileShake] = useState(false);
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const handleMobileChange = (e) => {
+    const digitsOnly = e.target.value.replace(/\D/g, "");
+    if (digitsOnly.length > 10) {
+      setMobileShake(true);
+      setTimeout(() => setMobileShake(false), 400);
+      return; // don't update past 10 digits
+    }
+    setForm((f) => ({ ...f, mobile_number: digitsOnly }));
+  };
 
   const switchMode = (nextMode) => {
     setMode(nextMode);
@@ -121,7 +132,7 @@ export default function AuthPage({ onLogin }) {
     }
   };
 
-  const heading = mode === "login" ? "Welcome" : mode === "register" ? "Create your account" : "Reset your password";
+  const heading = mode === "login" ? "Welcome" : mode === "register" ? "Create Your Account" : "Reset your password";
   const subheading =
     mode === "login"
       ? "Sign in"
@@ -130,27 +141,85 @@ export default function AuthPage({ onLogin }) {
       : "Verify your name and mobile number to set a new password.";
 
   return (
-    <div className="auth-shell auth-screen">
-      <div className="auth-brand" style={{ background: "var(--navy-950)", position: "relative", overflow: "hidden", display: "flex", flexDirection: isMobile ? "row" : "column", alignItems: isMobile ? "center" : "stretch", justifyContent: isMobile ? "flex-start" : "flex-start" }}>
-        <div style={{ position: "absolute", inset: 0, opacity: 0.5, backgroundImage: "radial-gradient(circle at 20% 20%, rgba(201,152,46,.18), transparent 40%), radial-gradient(circle at 80% 70%, rgba(41,56,115,.5), transparent 45%)" }} />
-        {isMobile && (
-          <div style={{ position: "relative" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Utensils size={16} color="var(--brass-400)" />
-              </div>
-            </div>
-          </div>
-        )}
+    <div className="auth-shell auth-screen" style={{ overflowY: "auto", minHeight: "100vh" }}>
+      <div
+        className="auth-brand"
+        style={{
+          background: "var(--navy-950)",
+          position: "relative",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: isMobile ? "center" : "stretch",
+          justifyContent: "flex-start",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.5,
+            backgroundImage:
+              "radial-gradient(circle at 20% 20%, rgba(201,152,46,.18), transparent 40%), radial-gradient(circle at 80% 70%, rgba(41,56,115,.5), transparent 45%)",
+          }}
+        />
+
         {!isMobile && (
           // Logo sits out of flow so it doesn't push the hero block down and
           // throw off its vertical centering relative to the login card.
-          <div style={{ position: "absolute", top: 36, left: 44, zIndex: 1 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 9, background: "rgba(255,255,255,.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <Utensils size={16} color="var(--brass-400)" />
-            </div>
+<div style={{ position: "absolute", top: 36, left: 44, zIndex: 1, display: "flex", alignItems: "center", gap: 10 }}>
+  <div
+    style={{
+      width: 34,
+      height: 34,
+      borderRadius: 9,
+      background: "rgba(255,255,255,.08)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <Utensils size={16} color="var(--brass-400)" />
+  </div>
+  <span className="brand-font" style={{ color: "#fff", fontSize: 16, fontWeight: 700 }}>
+    SapaaduBooking
+  </span>
+</div>
+        )}
+
+        {isMobile && (
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              padding: "20px 16px 10px",
+              gap: 6,
+            }}
+          >
+
+            <h1 className="brand-font" style={{ color: "#fff", fontSize: 22, lineHeight: 1.2, fontWeight: 700, margin: 0 }}>
+              Meal Portal
+            </h1>
+            <p className="body-font" style={{ color: "rgba(255,255,255,.6)", fontSize: 12, margin: 0 }}>
+              Order, Pay, and Track your meals in one place.
+            </p>
+              <img
+              src="./Neyon-meal.png"
+              alt="NLCIL mascot"
+              style={{
+                width: "auto",
+                height: "13vh",
+                maxHeight: 130,
+                objectFit: "contain",
+                filter: "drop-shadow(0 6px 14px rgba(0,0,0,.4))",
+              }}
+            />
           </div>
         )}
+
         {!isMobile && (
           <div className="auth-hero-desktop" style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 2 }}>
@@ -166,12 +235,21 @@ export default function AuthPage({ onLogin }) {
                 <img
                   src="./Neyon-meal.png"
                   alt="NLCIL mascot"
-                  style={{ width: "auto", maxWidth: "85%", height: "32vh", maxHeight: 620, objectFit: "contain", display: "block", filter: "drop-shadow(0 10px 20px rgba(0,0,0,.4))" }}
+                  style={{
+                    width: "auto",
+                    maxWidth: "85%",
+                    height: "32vh",
+                    maxHeight: 620,
+                    objectFit: "contain",
+                    display: "block",
+                    filter: "drop-shadow(0 10px 20px rgba(0,0,0,.4))",
+                  }}
                 />
               </div>
             </div>
           </div>
         )}
+
         {!isMobile && (
           <div className="body-font" style={{ position: "relative", color: "rgba(255,255,255,.35)", fontSize: 12.5 }}></div>
         )}
@@ -245,9 +323,21 @@ export default function AuthPage({ onLogin }) {
                   <TextInput placeholder="e.g. Rahul Sharma" value={form.name} onChange={update("name")} disabled={mode === "forgot" && verified} />
                 </Field>
               )}
+              {mode === "register" && (
+                <span className="body-font" style={{ color: "var(--bad-600)", fontSize: 10.5, marginTop: -10, marginBottom: -10 }}>
+                  Note: This Name is required for password reset and is Case-sensitive.
+                </span>
+              )}
 
               <Field label={mode === "login" ? "Registered mobile number" : "Mobile number"}>
-                <TextInput placeholder="10-digit mobile number" value={form.mobile_number} onChange={update("mobile_number")} disabled={mode === "forgot" && verified} />
+                <TextInput
+                  placeholder="10-digit Mobile Number"
+                  value={form.mobile_number}
+                  onChange={handleMobileChange}
+                  disabled={mode === "forgot" && verified}
+                  inputMode="numeric"
+                  className={mobileShake ? "shake" : ""}
+                />
               </Field>
 
               {mode === "forgot" && verified && (
@@ -267,7 +357,7 @@ export default function AuthPage({ onLogin }) {
 
               {mode === "register" && (
                 <Field label="Department">
-                  <TextInput placeholder="e.g. Engineering" value={form.department} onChange={update("department")} />
+                  <TextInput placeholder="e.g. IT,HR,House Keeping" value={form.department} onChange={update("department")} />
                 </Field>
               )}
               {(mode === "login" || mode === "register" || (mode === "forgot" && verified)) && (
@@ -311,7 +401,7 @@ export default function AuthPage({ onLogin }) {
                     : mode === "login"
                     ? "Sign in"
                     : mode === "register"
-                    ? "Create account"
+                    ? "Create Account"
                     : "Reset password"}
                 </Button>
               )}

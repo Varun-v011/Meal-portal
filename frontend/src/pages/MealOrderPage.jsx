@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Calendar, Utensils } from "lucide-react";
+import { Calendar, Utensils, CheckCircle2, Loader2 } from "lucide-react";
 import { Card, CardHeader, Field, Select, Stepper, ToggleTabs, Button } from "../components/ui";
 import FileUploadCard from "../components/meal/FileUploadCard";
 
@@ -22,7 +22,6 @@ function dateForDay(day) {
   if (day === "tomorrow") d.setDate(d.getDate() + 1);
   return d;
 }
-
 /** Date -> "YYYY-MM-DD" for the API. */
 function toIsoDate(d) {
   const y = d.getFullYear();
@@ -30,10 +29,82 @@ function toIsoDate(d) {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
-
 /** Date -> "11 Sep 2026" for display. */
 function formatDisplayDate(d) {
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/**
+ * One modal that covers the whole order-submission lifecycle:
+ * "submitting" -> (optionally) "slow" if it's taking a while -> "success".
+ * Only dismissible once it reaches "success".
+ */
+function OrderStatusModal({ phase, onClose }) {
+  const isSuccess = phase === "success";
+  const isSlow = phase === "slow";
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(15,20,35,.55)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: 16,
+      }}
+      onClick={isSuccess ? onClose : undefined}
+    >
+      <div
+        className="body-font"
+        style={{
+          background: "#fff",
+          borderRadius: "var(--radius-md, 14px)",
+          padding: "32px 28px",
+          maxWidth: 360,
+          width: "100%",
+          textAlign: "center",
+          boxShadow: "0 20px 50px rgba(0,0,0,.3)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+          {isSuccess ? (
+            <CheckCircle2 size={48} color="var(--ok-600, #1f9d55)" />
+          ) : (
+            <Loader2 size={44} color="var(--brass-600, #b8892f)" className="spin" />
+          )}
+        </div>
+
+        {isSuccess ? (
+          <>
+            <h3 className="brand-font" style={{ fontSize: 19, fontWeight: 700, color: "var(--navy-900)", margin: "0 0 8px" }}>
+              Order Submited
+            </h3>
+            <p style={{ fontSize: 13.5, color: "var(--ink-600)", margin: "0 0 22px" }}>
+              Track your order status in the History page.
+            </p>
+            <Button variant="primary" full onClick={onClose}>
+              Okay
+            </Button>
+          </>
+        ) : (
+          <>
+            <h3 className="brand-font" style={{ fontSize: 17, fontWeight: 700, color: "var(--navy-900)", margin: "0 0 8px" }}>
+              Placing your order...
+            </h3>
+            <p style={{ fontSize: 13, color: isSlow ? "var(--warn-600, #b8892f)" : "var(--ink-600)", margin: 0 }}>
+              {isSlow
+                ? "Your connection seems slow — please wait, don't close this page."
+                : "This will just take a moment."}
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function MealOrderPage({ userId }) {
@@ -45,7 +116,8 @@ export default function MealOrderPage({ userId }) {
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitErrors, setSubmitErrors] = useState([]);
-  const [submitted, setSubmitted] = useState(false);
+  // "idle" | "submitting" | "slow" | "success"
+  const [orderPhase, setOrderPhase] = useState("idle");
 
   useEffect(() => {
     (async () => {
@@ -120,6 +192,19 @@ export default function MealOrderPage({ userId }) {
   const total = price * qty;
   const closedNotice = category && isClosedNow(selectedRow);
   const orderDate = dateForDay(day);
+  const [screenshotRequired, setScreenshotRequired] = useState(true);
+
+  useEffect(() => {
+  (async () => {
+    try {
+      const res = await fetch("/api/app-settings");
+      const data = await res.json();
+      if (typeof data.screenshot_required === "boolean") {
+        setScreenshotRequired(data.screenshot_required);
+      }
+    } catch {}
+  })();
+}, []);
 
   const resetForm = () => {
     setCategory("");
@@ -130,34 +215,50 @@ export default function MealOrderPage({ userId }) {
   const handleSubmit = async () => {
     setSubmitErrors([]);
     setSubmitting(true);
+    setOrderPhase("submitting");
+
+    // If the request is still going after a few seconds, switch the modal
+    // to the slow-connection message instead of leaving it a bare spinner.
+    const slowTimer = setTimeout(() => setOrderPhase("slow"), 4000);
+
     try {
       const form = new FormData();
       form.append("user_id", userId);
       form.append("meal_type", category);
       form.append("quantity", qty);
       form.append("ordered_for", toIsoDate(orderDate));
-      form.append("payment_screenshot", file);
+      if (file) {
+  form.append("payment_screenshot", file);
+}
 
       const res = await fetch("/api/orders", { method: "POST", body: form });
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         setSubmitErrors(data.errors || ["Something went wrong. Please try again."]);
+        setOrderPhase("idle");
         return;
       }
 
-      setSubmitted(true);
       resetForm();
-      setTimeout(() => setSubmitted(false), 3000);
+      setOrderPhase("success");
     } catch {
       setSubmitErrors(["Could not reach the server. Please try again."]);
+      setOrderPhase("idle");
     } finally {
+      clearTimeout(slowTimer);
       setSubmitting(false);
     }
   };
 
+  const modalOpen = orderPhase === "submitting" || orderPhase === "slow" || orderPhase === "success";
+
   return (
     <div>
+      {modalOpen && (
+        <OrderStatusModal phase={orderPhase} onClose={() => setOrderPhase("idle")} />
+      )}
+
       <Card>
         <CardHeader title="New Meal Order" icon={Utensils} />
         <div className="card-pad order-form-gap">
@@ -216,22 +317,17 @@ export default function MealOrderPage({ userId }) {
               {submitErrors.join(" ")}
             </div>
           )}
-          {submitted && (
-            <div className="body-font" style={{ fontSize: 13, color: "var(--ok-600)", fontWeight: 700 }}>
-              Order placed — pending confirmation.
-            </div>
-          )}
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, paddingTop: 12, borderTop: "1px solid var(--line)", marginTop: 4 }}>
-            <div className="body-font" style={{ fontSize: 12, color: "var(--bad-600)" }}><b>Note:</b> payment screenshot is required to proceed.</div>
-            <div style={{ display: "flex", gap: 10, width: "100%" }}>
-              <Button variant="secondary" full onClick={resetForm} disabled={submitting}>Cancel</Button>
-              <Button variant="primary" full disabled={!category || !file || closedNotice || submitting} onClick={handleSubmit}>
-                {submitting ? "Placing order..." : "Proceed"}
-              </Button>
-            </div>
+<div className="body-font" style={{ fontSize: 12, color: "var(--bad-600)" }}>
+  {screenshotRequired && <><b>Note:</b> payment screenshot is required to proceed.</>}
+</div>
+<div style={{ display: "flex", gap: 10, width: "100%" }}>
+  <Button variant="secondary" full onClick={resetForm} disabled={submitting}>Cancel</Button>
+  <Button variant="primary" full disabled={!category || (screenshotRequired && !file) || closedNotice || submitting} onClick={handleSubmit}>
+    {submitting ? "Placing order..." : "Proceed"}
+  </Button>
+</div>
           </div>
-        </div>
       </Card>
     </div>
   );

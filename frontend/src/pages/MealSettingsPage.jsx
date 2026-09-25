@@ -20,6 +20,9 @@ export default function MealSettingsPage({ adminId }) {
   const [savingMeal, setSavingMeal] = useState(null);
   const [savedMeal, setSavedMeal] = useState(null);
   const [errors, setErrors] = useState({});
+  const [screenshotRequired, setScreenshotRequired] = useState(true);
+  const [savingScreenshot, setSavingScreenshot] = useState(false);
+  const [savedScreenshot, setSavedScreenshot] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -42,6 +45,14 @@ export default function MealSettingsPage({ adminId }) {
       } finally {
         setLoading(false);
       }
+
+      try {
+        const res2 = await fetch("/api/app-settings");
+        const data2 = await res2.json();
+        if (typeof data2.screenshot_required === "boolean") {
+          setScreenshotRequired(data2.screenshot_required);
+        }
+      } catch {}
     })();
   }, []);
 
@@ -84,10 +95,50 @@ export default function MealSettingsPage({ adminId }) {
     }
   };
 
+  const handleToggleScreenshot = async (value) => {
+    setScreenshotRequired(value);
+    setSavingScreenshot(true);
+    setSavedScreenshot(false);
+    try {
+      const res = await fetch("/api/app-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-User-Id": String(adminId) },
+        body: JSON.stringify({ screenshot_required: value }),
+      });
+      if (res.ok) {
+        setSavedScreenshot(true);
+        setTimeout(() => setSavedScreenshot(false), 2000);
+      }
+    } finally {
+      setSavingScreenshot(false);
+    }
+  };
+
   if (loading) return null;
 
   return (
     <div style={{ display: "grid", gap: 20 }}>
+      <Card>
+        <CardHeader title="Payment Screenshot" icon={Save} />
+        <div className="card-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="body-font" style={{ fontSize: 13, color: "var(--ink-600)" }}>
+            Require a payment screenshot before users can place an order.
+          </div>
+<Switch
+  checked={screenshotRequired}
+  onChange={handleToggleScreenshot}
+  label
+  onLabels={["Mandatory", "Optional"]}
+/>
+        </div>
+        {savingScreenshot && (
+          <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ink-600)" }}>Saving...</div>
+        )}
+        {savedScreenshot && (
+          <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ok-600)", fontWeight: 700 }}>Saved</div>
+        )}
+      </Card>
+
       {Object.entries(MEAL_META).map(([mealType, meta]) => {
         const row = settings[mealType];
         const rowErrors = errors[mealType];

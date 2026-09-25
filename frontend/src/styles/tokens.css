@@ -56,7 +56,7 @@ body{ margin:0; background:var(--canvas); }
 .nav-tabs{ display:flex; gap:4px; flex-wrap:wrap; }
 .nav-tabs-mobile{ display:none; }
 .mobile-header{ display:none; }
-.page-wrap{ max-width:1120px; margin:0 auto; padding:26px 24px 60px; }
+.page-wrap{ max-width:1400px; margin:0 auto; padding:26px 24px 60px; }
 .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
 .grid-loading{ display:grid; grid-template-columns:1.2fr 1fr; gap:20px; align-items:start; }
 .qty-for-grid{ display:grid; grid-template-columns:1fr 1.4fr; gap:16px; }
@@ -99,4 +99,20 @@ body{ margin:0; background:var(--canvas); }
   .order-form-gap{ gap:12px; }
   .field-note{ margin-top:0; }
   .upload-card{ padding:12px; gap:10px; }
+}
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(3px); }
+  30%, 50%, 70% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
+}
+.shake {
+  animation: shake 0.4s ease;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
 }

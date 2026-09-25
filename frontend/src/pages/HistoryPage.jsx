@@ -15,7 +15,10 @@ function todayIso() {
 function formatDate(iso) {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
 }
 
 const DEFAULT_FROM = todayIso();
@@ -25,11 +28,11 @@ const DEFAULT_FROM = todayIso();
  * "All History" (admin layout, every user's orders) — pass
  * `showEmployeeColumn` to toggle the Employee column and `title`
  * to relabel the card for context. Pass `userId` to scope to one
- * worker's own orders; omit it (admin) to see everyone's.
+ * staff's own orders; omit it (admin) to see everyone's.
  *
  * `hidePending`: pending orders already have their own dedicated page
  * (admin's Pending Orders) — pass this on the admin History view so
- * they aren't duplicated here. Left false for "My History" so workers
+ * they aren't duplicated here. Left false for "My History" so staff
  * can still see their own pending orders in their personal history.
  */
 export default function HistoryPage({ title = "Meal order history", showEmployeeColumn = true, currentUserId, showSearch = true, showFilters = true, hidePending = false }) {
@@ -114,7 +117,7 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
     { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
     {
       key: "screenshot",
-      label: "Payment screenshot",
+      label: "Payment Screenshot",
       render: (r) => (
         <button
           type="button"
@@ -126,7 +129,7 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
         </button>
       ),
     },
-    { key: "ordered", label: "Ordered date", render: (r) => formatDate(r.order_date) },
+    { key: "created_at", label: "Ordered at", render: (r) => r.created_at || "—" },
     { key: "for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
     { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
     { key: "remarks", label: "Remarks", render: (r) => r.remarks || "—" },

@@ -17,11 +17,13 @@ function tomorrowIso() {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
-
 function formatDate(iso) {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
 }
 
 function groupByMeal(orders) {
@@ -58,7 +60,7 @@ function MealOrdersModal({ mealType, orders, onClose }) {
               </span>
             )}
             <h2 className="brand-font" style={{ fontSize: 16, fontWeight: 600, color: "var(--navy-900)", margin: 0 }}>
-              {meta ? meta.label : mealType} — confirmed orders
+              {meta ? meta.label : mealType} — Confirmed Orders
             </h2>
           </div>
           <button className="focus-ring" onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--ink-600)", padding: 6 }}>
@@ -68,13 +70,14 @@ function MealOrdersModal({ mealType, orders, onClose }) {
         <div style={{ overflowY: "auto" }}>
           <Table
             columns={[
-              { key: "employee", label: "Employee" },
+              { key: "employee", label: "Name" },
+              { key: "department", label: "Department" },
               { key: "quantity", label: "Qty" },
               { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
               { key: "ordered_for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
               {
                 key: "payment_screenshot",
-                label: "Payment screenshot",
+                label: "Payment Screenshot",
                 render: (r) => (
                   <button
                     type="button"
@@ -87,7 +90,7 @@ function MealOrdersModal({ mealType, orders, onClose }) {
                 ),
               },
             ]}
-            rows={orders.map((o) => ({ ...o, employee: `${o.employee}${o.worker_id ? ` (${o.worker_id})` : ""}` }))}
+            rows={orders.map((o) => ({ ...o, employee: `${o.employee}${o.staff_id ? ` (${o.staff_id})` : ""}` }))}
             emptyTitle="No confirmed orders."
           />
         </div>
@@ -130,7 +133,7 @@ export default function ConfirmedPage({ adminId }) {
   const groupsToday = useMemo(() => groupByMeal(ordersToday), [ordersToday]);
   const groupsTomorrow = useMemo(() => groupByMeal(ordersTomorrow), [ordersTomorrow]);
   const groups = day === "today" ? groupsToday : groupsTomorrow;
-  const cardTitle = day === "today" ? "Today's confirmed meal orders" : "Tomorrow's confirmed meal orders";
+  const cardTitle = day === "today" ? "Today's confirmed meal orders" : "Tomorrow's Confirmed Meal Orders";
   const emptyTitle = day === "today" ? "No confirmed meal orders for today yet." : "No confirmed meal orders for tomorrow yet.";
 
   if (loading) {
@@ -188,7 +191,7 @@ export default function ConfirmedPage({ adminId }) {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div className="body-font" style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".05em", color: "var(--ink-600)", textTransform: "uppercase" }}>
-                      Total
+                      Total Amount
                     </div>
                     <div className="brand-font" style={{ fontSize: 22, fontWeight: 700, color: "var(--navy-900)" }}>₹{total}</div>
                   </div>

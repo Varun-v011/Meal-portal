@@ -25,7 +25,7 @@ export default function UserLayout({ page, setPage, onLogout, children, title, s
           {children}
         </div>
       </div>
-      <BottomNav page={page} setPage={setPage} items={USER_NAV_ITEMS} />
+      <BottomNav page={page} setPage={setPage} items={USER_NAV_ITEMS} userName={userName} userRole={userRole} onLogout={onLogout} />
     </div>
   );
 }

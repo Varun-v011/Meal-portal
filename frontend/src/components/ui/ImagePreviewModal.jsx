@@ -19,7 +19,7 @@ export default function ImagePreviewModal({ src, onClose }) {
         style={{ background: "var(--paper)", borderRadius: "var(--radius-lg)", maxWidth: "min(560px, 92vw)", maxHeight: "88vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 20px 60px rgba(0,0,0,.4)" }}
       >
         <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h3 className="brand-font" style={{ fontSize: 14, fontWeight: 700, color: "var(--navy-900)", margin: 0 }}>Payment screenshot</h3>
+          <h3 className="brand-font" style={{ fontSize: 14, fontWeight: 700, color: "var(--navy-900)", margin: 0 }}>Payment Screenshot</h3>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <a
               href={src}
@@ -41,7 +41,7 @@ export default function ImagePreviewModal({ src, onClose }) {
           </div>
         </div>
         <div style={{ overflow: "auto", background: "var(--canvas)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-          <img src={src} alt="Payment screenshot" style={{ maxWidth: "100%", maxHeight: "72vh", display: "block", borderRadius: 8 }} />
+          <img src={src} alt="Payment Screenshot" style={{ maxWidth: "100%", maxHeight: "72vh", display: "block", borderRadius: 8 }} />
         </div>
       </div>
     </div>

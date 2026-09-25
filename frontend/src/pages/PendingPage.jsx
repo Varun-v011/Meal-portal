@@ -9,9 +9,11 @@ const MEAL_LABELS = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" }
 function formatDate(iso) {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
 }
-
 function RejectDialog({ order, onCancel, onConfirm, submitting }) {
   const [remarks, setRemarks] = useState("");
 
@@ -25,7 +27,7 @@ function RejectDialog({ order, onCancel, onConfirm, submitting }) {
         style={{ background: "var(--navy-900)", borderRadius: "var(--radius-lg)", width: "100%", maxWidth: 420, padding: 22, boxShadow: "0 20px 60px rgba(0,0,0,.4)" }}
       >
         <h3 className="brand-font" style={{ color: "#fff", fontSize: 16, fontWeight: 700, margin: "0 0 4px" }}>
-          Reject order
+          Reject Order
         </h3>
         <p className="body-font" style={{ color: "rgba(255,255,255,.6)", fontSize: 13, margin: "0 0 18px" }}>
           {order.employee} · {MEAL_LABELS[order.meal_type] || order.meal_type} · Qty {order.quantity}
@@ -48,7 +50,7 @@ function RejectDialog({ order, onCancel, onConfirm, submitting }) {
             Cancel
           </Button>
           <Button variant="danger" full onClick={() => onConfirm(remarks)} disabled={submitting || !remarks.trim()}>
-            {submitting ? "Rejecting..." : "Reject order"}
+            {submitting ? "Rejecting..." : "Reject Order"}
           </Button>
         </div>
       </div>
@@ -119,7 +121,7 @@ export default function PendingPage({ adminId }) {
 
   return (
     <Card>
-      <CardHeader title="Pending meal orders" icon={Clock} />
+      <CardHeader title="Pending Meal Orders" icon={Clock} />
 
       {error && (
         <div className="body-font" style={{ padding: "12px 22px", fontSize: 13, color: "var(--bad-600)", borderBottom: "1px solid var(--line)" }}>
@@ -135,12 +137,14 @@ export default function PendingPage({ adminId }) {
             { key: "employee", label: "Name" },
             { key: "meal", label: "Meal type", render: (r) => MEAL_LABELS[r.meal_type] || r.meal_type },
             { key: "quantity", label: "Qty" },
+            { key: "department", label: "Department" },
             { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
             { key: "order_date", label: "Order date", render: (r) => formatDate(r.order_date) },
             { key: "ordered_for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
             {
               key: "payment_screenshot",
-              label: "Payment screenshot",
+              label: "Payment Screenshot",
+              
               render: (r) => (
                 <button
                   type="button"

@@ -25,7 +25,7 @@ export default function AdminLayout({ page, setPage, onLogout, children, title, 
           {children}
         </div>
       </div>
-      <BottomNav page={page} setPage={setPage} items={ADMIN_NAV_ITEMS} />
+      <BottomNav page={page} setPage={setPage} items={ADMIN_NAV_ITEMS}  userName={userName} userRole={userRole} onLogout={onLogout} />
     </div>
   );
 }

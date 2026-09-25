@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from models import db
 
 
+
 class MealSettings(db.Model):
     """One row per meal type (breakfast/lunch/dinner) controlling what the
     client sees: whether it can be ordered right now, at what price, and

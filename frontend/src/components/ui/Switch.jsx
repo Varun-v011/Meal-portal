@@ -1,6 +1,8 @@
 import React from "react";
 
-export default function Switch({ checked, onChange, label }) {
+export default function Switch({ checked, onChange, label, onLabels }) {
+  const [onText, offText] = onLabels || ["Available", "Closed"];
+
   return (
     <label
       className="focus-ring"
@@ -34,9 +36,9 @@ export default function Switch({ checked, onChange, label }) {
       </span>
       {label && (
         <span className="body-font" style={{ fontSize: 13.5, fontWeight: 700, color: checked ? "var(--ok-600)" : "var(--ink-400)" }}>
-          {checked ? "Available" : "Closed"}
+          {checked ? onText : offText}
         </span>
       )}
     </label>
   );
-}   
+}

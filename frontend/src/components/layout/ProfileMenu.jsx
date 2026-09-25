@@ -62,7 +62,7 @@ export default function ProfileMenu({ name = "User", mobile, onLogout, align = "
         )}
       </button>
 
-      {/* {open && (
+       {open && (
         <div
           className="body-font"
           style={{
@@ -89,7 +89,7 @@ export default function ProfileMenu({ name = "User", mobile, onLogout, align = "
             Log out
           </button>
         </div>
-      )} */}
+      )} 
     </div>
   );
 }

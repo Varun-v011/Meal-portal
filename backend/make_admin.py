@@ -1,13 +1,13 @@
 """
 One-time script to promote an existing account to admin.
-Edit WORKER_ID below, then run:
+Edit Mobile_number below, then run:
     python make_admin.py
 """
 from sqlalchemy import create_engine, text
 
-mobile_number = "7010685725"  # <-- change this to the actual mobile number you registered
+mobile_number = "9999988888"  # <-- change this to the actual mobile number you registered
 
-engine = create_engine("mysql+pymysql://web_user:admin123@127.0.0.1:3306/web_db")
+engine = create_engine("mysql+pymysql://web_user:admin1234@127.0.0.1:3306/mealportal_db")
 
 with engine.connect() as conn:
     result = conn.execute(

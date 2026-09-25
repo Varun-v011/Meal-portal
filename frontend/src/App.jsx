@@ -14,31 +14,40 @@ function formatTodayLong() {
 }
 
 const USER_TITLES = {
-  order: { title: "Meal order", subtitle: formatTodayLong() },
-  myHistory: { title: "My history", subtitle: "Your past orders and their status" },
+  order: { title: "Meal Order", subtitle: formatTodayLong() },
+  myHistory: { title: "History", subtitle: "Your past orders and their status" },
 };
 
 const ADMIN_TITLES = {
-  pending: { title: "Pending orders", subtitle: "Awaiting confirmation" },
-  confirmed: { title: "Confirmed today", subtitle: formatTodayLong() },
-  history: { title: "All order history",},
-  mealSettings: { title: "Meal settings", subtitle: "Availability, pricing, and closing times" },
+  pending: { title: "Pending Orders", subtitle: "Awaiting Confirmation" },
+  confirmed: { title: "Confirmed Orders" },
+  history: { title: "All Order History",},
+  mealSettings: { title: "Meal Settings", subtitle: "Availability, Pricing, and Closing times" },
 };
 
 export default function App() {
   // currentUser = null (logged out) | user object returned by /api/login
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+  const saved = localStorage.getItem("currentUser");
+  return saved ? JSON.parse(saved) : null;
+  });
   const [userPage, setUserPage] = useState("order");
   const [adminPage, setAdminPage] = useState("pending");
 
-  const handleLogin = (user) => setCurrentUser(user);
-  const handleLogout = () => setCurrentUser(null);
+const handleLogin = (user) => {
+  setCurrentUser(user);
+  localStorage.setItem("currentUser", JSON.stringify(user));
+};
+const handleLogout = () => {
+  setCurrentUser(null);
+  localStorage.removeItem("currentUser");
+};
 
   if (!currentUser) {
     return <AuthPage onLogin={handleLogin} />;
   }
 
-  const auth = currentUser.role; // "admin" | "worker"
+  const auth = currentUser.role; // "admin" | "staff"
 
   if (auth === "admin") {
     const { title, subtitle } = ADMIN_TITLES[adminPage];
@@ -61,7 +70,7 @@ export default function App() {
     );
   }
 
-  // auth === "worker"
+  // auth === "staff"
   const { title, subtitle } = USER_TITLES[userPage];
   return (
     <UserLayout

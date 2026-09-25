@@ -52,7 +52,7 @@ def register():
         elif existing.mobile_number == mobile_number:
             msg = "Mobile number already registered."
         else:
-            msg = "Email already registered."
+            msg = "Mobile No. already registered."
         return jsonify({"errors": [msg]}), 409
 
     user = User(

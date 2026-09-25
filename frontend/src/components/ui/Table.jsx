@@ -4,7 +4,7 @@ import EmptyState from "./EmptyState";
 export default function Table({ columns, rows, emptyTitle = "Nothing here yet", emptySubtitle }) {
   return (
     <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 720 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse"}}>
         <thead>
           <tr>
             {columns.map((c) => (
