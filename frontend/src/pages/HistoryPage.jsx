@@ -23,6 +23,57 @@ function formatDate(iso) {
 
 const DEFAULT_FROM = todayIso();
 
+/** Mobile card for a single history row — mirrors the Table columns/labels
+ * exactly, just laid out for a narrow screen instead of a wide row. */
+function HistoryOrderCard({ order, showEmployeeColumn, onView }) {
+  return (
+    <div style={{ background: "var(--paper)", border: "1px solid var(--line)", borderTop: "3px solid var(--brass-500)", borderRadius: "var(--radius-lg)", padding: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div>
+          {showEmployeeColumn && (
+            <>
+              <p className="brand-font" style={{ fontWeight: 700, fontSize: 14.5, margin: 0, color: "var(--navy-900)" }}>{order.employee}</p>
+              <p className="body-font" style={{ fontSize: 12, color: "var(--ink-600)", margin: "2px 0 0" }}>
+                {order.department || "—"} · {MEAL_LABELS[order.meal_type] || order.meal_type}
+              </p>
+            </>
+          )}
+          {!showEmployeeColumn && (
+            <p className="brand-font" style={{ fontWeight: 700, fontSize: 14.5, margin: 0, color: "var(--navy-900)" }}>
+              {MEAL_LABELS[order.meal_type] || order.meal_type}
+            </p>
+          )}
+        </div>
+        <StatusBadge status={order.status} />
+      </div>
+
+      <div className="body-font" style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--ink-600)", borderTop: "1px solid var(--line)", paddingTop: 8, marginBottom: 4 }}>
+        <span>Qty {order.quantity}</span>
+        <span style={{ fontWeight: 700, color: "var(--navy-900)" }}>₹{order.amount}</span>
+      </div>
+      <div className="body-font" style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--ink-600)", marginBottom: 10 }}>
+        <span>Ordered at {order.created_at || "—"}</span>
+        <span>Ordered for {formatDate(order.ordered_for)}</span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onView}
+        className="focus-ring body-font"
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "none", border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", padding: 8, fontSize: 12.5, fontWeight: 600, color: "var(--navy-900)", cursor: "pointer" }}
+      >
+        <ImageIcon size={14} /> Payment Screenshot
+      </button>
+
+      {order.remarks && (
+        <p className="body-font" style={{ fontSize: 12, color: "var(--ink-600)", margin: "10px 0 0" }}>
+          Remarks: {order.remarks}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /**
  * Reused for both "My History" (user layout, own orders only) and
  * "All History" (admin layout, every user's orders) — pass
@@ -155,7 +206,7 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
                 <TextInput icon={Search} placeholder="Search name, department, meal..." value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             )}
-            <Button size="sm" icon={Search} onClick={handleSearch} disabled={loading}>Search</Button>
+            <Button size="sm" onClick={handleSearch} disabled={loading}>Apply Filter</Button>
             <button onClick={handleClear} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--bad-100)", background: "var(--bad-100)", color: "var(--bad-600)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={15} /></button>
           </div>
         </div>
@@ -163,7 +214,7 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
       )}
 
       {showFilters && (
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        <div className="summary-cards" style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <Card style={{ flex: 1, minWidth: 200 }}>
             <div className="card-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span className="body-font" style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".05em", color: "var(--ink-600)", textTransform: "uppercase" }}>
@@ -190,11 +241,31 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
             {error}
           </div>
         )}
-        <Table
-          columns={columns}
-          rows={loading ? [] : filteredRows}
-          emptyTitle={loading ? "Loading order history..." : "No meal orders found for this range."}
-        />
+
+        <div className="table-desktop">
+          <Table
+            columns={columns}
+            rows={loading ? [] : filteredRows}
+            emptyTitle={loading ? "Loading order history..." : "No meal orders found for this range."}
+          />
+        </div>
+
+        <div className="order-cards-mobile" style={{ padding: !loading && filteredRows.length ? 14 : 0 }}>
+          {loading ? (
+            <div className="card-pad body-font" style={{ fontSize: 13, color: "var(--ink-600)" }}>Loading order history...</div>
+          ) : filteredRows.length === 0 ? (
+            <div className="card-pad body-font" style={{ fontSize: 13, color: "var(--ink-600)" }}>No meal orders found for this range.</div>
+          ) : (
+            filteredRows.map((r) => (
+              <HistoryOrderCard
+                key={r.id}
+                order={r}
+                showEmployeeColumn={showEmployeeColumn}
+                onView={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+              />
+            ))
+          )}
+        </div>
       </Card>
 
       {previewSrc && <ImagePreviewModal src={previewSrc} onClose={() => setPreviewSrc(null)} />}

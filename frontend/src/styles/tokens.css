@@ -99,6 +99,7 @@ body{ margin:0; background:var(--canvas); }
   .order-form-gap{ gap:12px; }
   .field-note{ margin-top:0; }
   .upload-card{ padding:12px; gap:10px; }
+  .summary-cards > * { min-width: 0 !important; }
 }
 @keyframes shake {
   10%, 90% { transform: translateX(-2px); }
@@ -115,4 +116,11 @@ body{ margin:0; background:var(--canvas); }
 }
 .spin {
   animation: spin 1s linear infinite;
+}
+.order-cards-mobile{ display:none; flex-direction:column; gap:10px; }
+
+@media (max-width: 860px){
+  .table-desktop{ display:none; }
+  .order-cards-mobile{ display:flex; }
+  .filter-left{ justify-content: center; }
 }

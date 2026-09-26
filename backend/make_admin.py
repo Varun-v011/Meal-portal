@@ -5,8 +5,8 @@ Edit Mobile_number below, then run:
 """
 from sqlalchemy import create_engine, text
 
-mobile_number = "9999988888"  # <-- change this to the actual mobile number you registered
-
+mobile_number = ""  # <-- change this to the actual mobile number you registered
+#in this pc pass:admin123 for server pc pass:admin1234
 engine = create_engine("mysql+pymysql://web_user:admin1234@127.0.0.1:3306/mealportal_db")
 
 with engine.connect() as conn:

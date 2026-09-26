@@ -40,9 +40,37 @@ function groupByMeal(orders) {
   });
 }
 
+/** Mobile card for a single confirmed order — mirrors the modal Table
+ * columns/labels exactly, just laid out for a narrow screen. */
+function ConfirmedOrderCard({ order, onView }) {
+  return (
+    <div style={{ background: "var(--paper)", border: "1px solid var(--line)", borderTop: "3px solid var(--brass-500)", borderRadius: "var(--radius-lg)", padding: 14 }}>
+      <div style={{ marginBottom: 8 }}>
+        <p className="brand-font" style={{ fontWeight: 700, fontSize: 14.5, margin: 0, color: "var(--navy-900)" }}>{order.employee}</p>
+        <p className="body-font" style={{ fontSize: 12, color: "var(--ink-600)", margin: "2px 0 0" }}>{order.department}</p>
+      </div>
+      <div className="body-font" style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--ink-600)", borderTop: "1px solid var(--line)", paddingTop: 8, marginBottom: 10 }}>
+        <span>Qty {order.quantity}</span>
+        <span style={{ fontWeight: 700, color: "var(--navy-900)" }}>₹{order.amount}</span>
+        <span>Ordered for {formatDate(order.ordered_for)}</span>
+      </div>
+      <button
+        type="button"
+        onClick={onView}
+        className="focus-ring body-font"
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "none", border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", padding: 8, fontSize: 12.5, fontWeight: 600, color: "var(--navy-900)", cursor: "pointer" }}
+      >
+        <ImageIcon size={14} /> Payment Screenshot
+      </button>
+    </div>
+  );
+}
+
 function MealOrdersModal({ mealType, orders, onClose }) {
   const meta = MEAL_META[mealType];
   const [previewSrc, setPreviewSrc] = useState(null);
+  const rowsWithLabel = orders.map((o) => ({ ...o, employee: `${o.employee}${o.staff_id ? ` (${o.staff_id})` : ""}` }));
+
   return (
     <div
       style={{ position: "fixed", inset: 0, background: "rgba(15, 20, 35, 0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: 16 }}
@@ -68,31 +96,47 @@ function MealOrdersModal({ mealType, orders, onClose }) {
           </button>
         </div>
         <div style={{ overflowY: "auto" }}>
-          <Table
-            columns={[
-              { key: "employee", label: "Name" },
-              { key: "department", label: "Department" },
-              { key: "quantity", label: "Qty" },
-              { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
-              { key: "ordered_for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
-              {
-                key: "payment_screenshot",
-                label: "Payment Screenshot",
-                render: (r) => (
-                  <button
-                    type="button"
-                    onClick={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
-                    className="focus-ring body-font"
-                    style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--navy-900)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13.5 }}
-                  >
-                    <ImageIcon size={14} /> View
-                  </button>
-                ),
-              },
-            ]}
-            rows={orders.map((o) => ({ ...o, employee: `${o.employee}${o.staff_id ? ` (${o.staff_id})` : ""}` }))}
-            emptyTitle="No confirmed orders."
-          />
+          <div className="table-desktop">
+            <Table
+              columns={[
+                { key: "employee", label: "Name" },
+                { key: "department", label: "Department" },
+                { key: "quantity", label: "Qty" },
+                { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
+                { key: "ordered_for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
+                {
+                  key: "payment_screenshot",
+                  label: "Payment Screenshot",
+                  render: (r) => (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+                      className="focus-ring body-font"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--navy-900)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13.5 }}
+                    >
+                      <ImageIcon size={14} /> View
+                    </button>
+                  ),
+                },
+              ]}
+              rows={rowsWithLabel}
+              emptyTitle="No confirmed orders."
+            />
+          </div>
+
+          <div className="order-cards-mobile" style={{ padding: rowsWithLabel.length ? 14 : 0 }}>
+            {rowsWithLabel.length === 0 ? (
+              <EmptyState title="No confirmed orders." />
+            ) : (
+              rowsWithLabel.map((o) => (
+                <ConfirmedOrderCard
+                  key={o.id}
+                  order={o}
+                  onView={() => setPreviewSrc(`/api/uploads/${o.payment_screenshot}`)}
+                />
+              ))
+            )}
+          </div>
         </div>
       </div>
       {previewSrc && <ImagePreviewModal src={previewSrc} onClose={() => setPreviewSrc(null)} />}

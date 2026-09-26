@@ -17,6 +17,7 @@ app = Flask(__name__, static_folder=FRONTEND_DIST, static_url_path="")
 CORS(app)
 
 # MariaDB connection string: mysql+pymysql://<user>:<password>@localhost:<port>/<database>
+#in this pc pass:admin123 for server pc pass:admin1234
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://web_user:admin1234@127.0.0.1:3306/mealportal_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

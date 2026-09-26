@@ -58,6 +58,50 @@ function RejectDialog({ order, onCancel, onConfirm, submitting }) {
   );
 }
 
+/** Mobile card for a single pending order — mirrors the Table columns/labels
+ * exactly, just laid out for a narrow screen instead of a wide row. */
+function PendingOrderCard({ order, onView, onConfirm, onReject, actioning }) {
+  return (
+    <div style={{ background: "var(--paper)", border: "1px solid var(--line)", borderTop: "3px solid var(--brass-500)", borderRadius: "var(--radius-lg)", padding: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div>
+          <p className="brand-font" style={{ fontWeight: 700, fontSize: 14.5, margin: 0, color: "var(--navy-900)" }}>{order.employee}</p>
+          <p className="body-font" style={{ fontSize: 12, color: "var(--ink-600)", margin: "2px 0 0" }}>
+            {order.department} · {MEAL_LABELS[order.meal_type] || order.meal_type}
+          </p>
+        </div>
+      </div>
+
+      <div className="body-font" style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--ink-600)", borderTop: "1px solid var(--line)", paddingTop: 8, marginBottom: 4 }}>
+        <span>Qty {order.quantity}</span>
+        <span style={{ fontWeight: 700, color: "var(--navy-900)" }}>₹{order.amount}</span>
+      </div>
+      <div className="body-font" style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--ink-600)", marginBottom: 10 }}>
+        <span>Order date {formatDate(order.order_date)}</span>
+        <span>Ordered for {formatDate(order.ordered_for)}</span>
+      </div>
+
+      <button
+        type="button"
+        onClick={onView}
+        className="focus-ring body-font"
+        style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "none", border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", padding: 8, fontSize: 12.5, fontWeight: 600, color: "var(--navy-900)", cursor: "pointer", marginBottom: 8 }}
+      >
+        <ImageIcon size={14} /> Payment Screenshot
+      </button>
+
+      <div style={{ display: "flex", gap: 8 }}>
+        <Button size="sm" variant="primary" icon={Check} full onClick={onConfirm} disabled={actioning}>
+          Confirm
+        </Button>
+        <Button size="sm" variant="danger" icon={X} full onClick={onReject} disabled={actioning}>
+          Reject
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function PendingPage({ adminId }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -132,49 +176,70 @@ export default function PendingPage({ adminId }) {
       {loading ? (
         <EmptyState icon={Clock} title="Loading pending orders..." />
       ) : (
-        <Table
-          columns={[
-            { key: "employee", label: "Name" },
-            { key: "meal", label: "Meal type", render: (r) => MEAL_LABELS[r.meal_type] || r.meal_type },
-            { key: "quantity", label: "Qty" },
-            { key: "department", label: "Department" },
-            { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
-            { key: "order_date", label: "Order date", render: (r) => formatDate(r.order_date) },
-            { key: "ordered_for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
-            {
-              key: "payment_screenshot",
-              label: "Payment Screenshot",
-              
-              render: (r) => (
-                <button
-                  type="button"
-                  onClick={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
-                  className="focus-ring body-font"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--navy-900)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13.5 }}
-                >
-                  <ImageIcon size={14} /> View
-                </button>
-              ),
-            },
-            {
-              key: "action",
-              label: "Action",
-              width: 190,
-              render: (r) => (
-                <div style={{ display: "flex", gap: 8 }}>
-                  <Button size="sm" variant="primary" icon={Check} onClick={() => handleConfirm(r)} disabled={actioningId === r.id}>
-                    Confirm
-                  </Button>
-                  <Button size="sm" variant="danger" icon={X} onClick={() => setRejectTarget(r)} disabled={actioningId === r.id}>
-                    Reject
-                  </Button>
-                </div>
-              ),
-            },
-          ]}
-          rows={rows}
-          emptyTitle="No pending lunch orders."
-        />
+        <>
+          <div className="table-desktop">
+            <Table
+              columns={[
+                { key: "employee", label: "Name" },
+                { key: "meal", label: "Meal type", render: (r) => MEAL_LABELS[r.meal_type] || r.meal_type },
+                { key: "quantity", label: "Qty" },
+                { key: "department", label: "Department" },
+                { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
+                { key: "order_date", label: "Order date", render: (r) => formatDate(r.order_date) },
+                { key: "ordered_for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
+                {
+                  key: "payment_screenshot",
+                  label: "Payment Screenshot",
+
+                  render: (r) => (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+                      className="focus-ring body-font"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--navy-900)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13.5 }}
+                    >
+                      <ImageIcon size={14} /> View
+                    </button>
+                  ),
+                },
+                {
+                  key: "action",
+                  label: "Action",
+                  width: 190,
+                  render: (r) => (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Button size="sm" variant="primary" icon={Check} onClick={() => handleConfirm(r)} disabled={actioningId === r.id}>
+                        Confirm
+                      </Button>
+                      <Button size="sm" variant="danger" icon={X} onClick={() => setRejectTarget(r)} disabled={actioningId === r.id}>
+                        Reject
+                      </Button>
+                    </div>
+                  ),
+                },
+              ]}
+              rows={rows}
+              emptyTitle="No pending lunch orders."
+            />
+          </div>
+
+          <div className="order-cards-mobile" style={{ padding: rows.length ? 14 : 0 }}>
+            {rows.length === 0 ? (
+              <EmptyState icon={Clock} title="No pending lunch orders." />
+            ) : (
+              rows.map((r) => (
+                <PendingOrderCard
+                  key={r.id}
+                  order={r}
+                  actioning={actioningId === r.id}
+                  onView={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+                  onConfirm={() => handleConfirm(r)}
+                  onReject={() => setRejectTarget(r)}
+                />
+              ))
+            )}
+          </div>
+        </>
       )}
 
       {rejectTarget && (
