@@ -70,7 +70,7 @@ body{ margin:0; background:var(--canvas); }
 .order-form-gap{ display:grid; gap:20px; }
 .field-note{ margin-top:-12px; }
 .upload-card{ display:flex; gap:18px; padding:18px; background:var(--canvas); border-radius:var(--radius-md); border:1px solid var(--line); flex-wrap:wrap; align-items:center; }
-
+.date-filter-input{ width: 150px; }
 /* ---------- Admin shell (sidebar layout) ---------- */
 .sidebar-shell{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
 .sidebar-desktop{ display:flex; }
@@ -100,6 +100,7 @@ body{ margin:0; background:var(--canvas); }
   .field-note{ margin-top:0; }
   .upload-card{ padding:12px; gap:10px; }
   .summary-cards > * { min-width: 0 !important; }
+  .date-filter-input{ width: 130px; }
 }
 @keyframes shake {
   10%, 90% { transform: translateX(-2px); }
@@ -123,4 +124,7 @@ body{ margin:0; background:var(--canvas); }
   .table-desktop{ display:none; }
   .order-cards-mobile{ display:flex; }
   .filter-left{ justify-content: center; }
+}
+@media (max-width: 400px){
+  .date-filter-input{ width: 105px; }
 }

@@ -197,9 +197,9 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
               <span className="body-font" style={{ fontSize: 13.5 }}>Filter by ordered for</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="body-font focus-ring" style={{ ...inputBase, width: 150 }} />
-              <span style={{ color: "var(--ink-400)" }}>→</span>
-              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="body-font focus-ring" style={{ ...inputBase, width: 150 }} />
+                <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="body-font focus-ring date-filter-input" style={inputBase} />
+                <span style={{ color: "var(--ink-400)" }}>→</span>
+                <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="body-font focus-ring date-filter-input" style={inputBase} />
             </div>
             {showSearch && (
               <div style={{ width: 220 }}>
