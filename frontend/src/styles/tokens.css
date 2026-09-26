@@ -101,6 +101,12 @@ body{ margin:0; background:var(--canvas); }
   .upload-card{ padding:12px; gap:10px; }
   .summary-cards > * { min-width: 0 !important; }
   .date-filter-input{ width: 130px; }
+  .filter-left{ flex-direction: column; align-items: stretch; width: 100%; }
+  .date-range-row{ width: 100%; }
+  .date-filter-input{ flex: 1; width: auto; min-width: 0; }
+  .filter-search-wrap{ width: 100% !important; }
+  .filter-actions-row{ display: flex; justify-content: center; align-items: center; gap: 10px; }
+  .filter-actions-row button{ flex: none; width: auto; }
 }
 @keyframes shake {
   10%, 90% { transform: translateX(-2px); }

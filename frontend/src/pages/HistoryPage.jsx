@@ -196,18 +196,20 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
               <Calendar size={16} color="var(--brass-600)" />
               <span className="body-font" style={{ fontSize: 13.5 }}>Filter by ordered for</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div className="date-range-row"  style={{display: "flex", alignItems: "center", gap: 8 }}>
                 <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="body-font focus-ring date-filter-input" style={inputBase} />
                 <span style={{ color: "var(--ink-400)" }}>→</span>
                 <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="body-font focus-ring date-filter-input" style={inputBase} />
             </div>
             {showSearch && (
-              <div style={{ width: 220 }}>
-                <TextInput icon={Search} placeholder="Search name, department, meal..." value={search} onChange={(e) => setSearch(e.target.value)} />
-              </div>
-            )}
-            <Button size="sm" onClick={handleSearch} disabled={loading}>Apply Filter</Button>
-            <button onClick={handleClear} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--bad-100)", background: "var(--bad-100)", color: "var(--bad-600)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={15} /></button>
+                <div className="filter-search-wrap" style={{ width: 220 }}>
+                  <TextInput icon={Search} placeholder="Search name, department, meal..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                </div>
+        )}
+            <div className="filter-actions-row">
+                <Button size="sm" onClick={handleSearch} disabled={loading}>Apply Filter</Button>
+                <button onClick={handleClear} style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid var(--bad-100)", background: "var(--bad-100)", color: "var(--bad-600)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}><X size={15} /></button>
+            </div>
           </div>
         </div>
       </Card>
