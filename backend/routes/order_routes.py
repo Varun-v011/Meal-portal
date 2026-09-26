@@ -6,6 +6,7 @@ from models import MealSettings, AppSettings
 import os, uuid
 from auth_utils import admin_required, login_required
 from datetime import timezone, timedelta
+from push_utils import send_push_to_admins
 
 IST = timezone(timedelta(hours=5, minutes=30))
 order_bp = Blueprint("orders", __name__, url_prefix="/api")
@@ -95,6 +96,11 @@ def create_order():
     )
     db.session.add(order)
     db.session.commit()
+    send_push_to_admins(
+        title="New meal order",
+        body=f"{order.user.name} ordered {meal_type} (Qty {quantity}).",
+        url="/",
+    )
 
     return jsonify({"message": "Order placed, pending confirmation.", "order_id": order.id}), 201
     
@@ -139,6 +145,12 @@ def review_order(order_id):
     order.status = "confirmed" if action == "confirm" else "rejected"
     order.remarks = remarks
     db.session.commit()
+    send_push_to_user(
+        order.user_id,
+        title=f"Order {order.status}",
+        body=f"Your {order.meal_type} order was {order.status}.",
+        url="/",
+    )
 
     return jsonify({"message": f"Order {order.status}.", "order": _order_dict(order)}), 200
 
