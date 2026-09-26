@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./styles/tokens.css";
 import { UserLayout, AdminLayout } from "./layouts";
 import { AuthPage, MealOrderPage, HistoryPage, ConfirmedPage, PendingPage, MealSettingsPage } from "./pages";
+import { subscribeToPush } from "./push";
 
 /** Today's date as "Friday, 11 September 2026". */
 function formatTodayLong() {
@@ -37,6 +38,7 @@ export default function App() {
 const handleLogin = (user) => {
   setCurrentUser(user);
   localStorage.setItem("currentUser", JSON.stringify(user));
+  subscribeToPush(user.id);
 };
 const handleLogout = () => {
   setCurrentUser(null);

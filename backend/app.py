@@ -7,6 +7,7 @@ from routes import register_routes
 from models import MealSettings
 from routes import settings_bp
 from models import AppSettings
+from routes.push import push_bp
 
 # The built frontend (npm run build output) lives at ../frontend/dist
 # relative to this file. Flask serves it directly so the whole app is one
@@ -34,6 +35,7 @@ with app.app_context():
     AppSettings.seed_defaults()
     
 app.register_blueprint(settings_bp)
+app.register_blueprint(push_bp)
 
 @app.route('/api/health', methods=['GET'])
 def health():
