@@ -1,19 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 function initials(name = "") {
   return name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("");
 }
 
 /**
- * Avatar + name button. Shows the user's mobile number under their name
- * (variant="row" only — used at the top of Sidebar on desktop).
+ * Avatar + name button.
  *
- * variant="avatar": just the circular initials, no name/mobile text —
- * used in BottomNav (mobile).
+ * variant="row": used at the top of Sidebar on desktop. Shows the avatar,
+ * name and mobile number. Not clickable, no dropdown.
  *
- * The dropdown (name/mobile card + Logout) is intentionally left
- * commented out for now — not needed yet.
+ * variant="avatar": just the circular initials, used in BottomNav (mobile).
+ * Tapping it opens the dropdown (name/mobile card + Logout).
  */
 export default function ProfileMenu({ name = "User", mobile, onLogout, align = "left", variant = "row" }) {
   const [open, setOpen] = useState(false);
@@ -32,7 +31,7 @@ export default function ProfileMenu({ name = "User", mobile, onLogout, align = "
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button
-        onClick={() => setOpen((o) => !o)}
+        onClick={isAvatar ? () => setOpen((o) => !o) : undefined}
         className="focus-ring body-font"
         style={
           isAvatar
@@ -46,8 +45,8 @@ export default function ProfileMenu({ name = "User", mobile, onLogout, align = "
             : {
                 width: "100%", display: "flex", alignItems: "center", gap: 10,
                 padding: "9px 10px", borderRadius: "var(--radius-sm)",
-                border: "1px solid var(--line)", background: open ? "var(--canvas)" : "#fff",
-                cursor: "pointer", textAlign: "left",
+                border: "1px solid var(--line)", background: "#fff",
+                cursor: "default", textAlign: "left",
               }
         }
       >
@@ -62,12 +61,12 @@ export default function ProfileMenu({ name = "User", mobile, onLogout, align = "
         )}
       </button>
 
-       {open && (
+      {isAvatar && open && (
         <div
           className="body-font"
           style={{
             position: "absolute",
-            ...(isAvatar ? { bottom: "calc(100% + 8px)" } : { top: "calc(100% + 6px)" }),
+            bottom: "calc(100% + 8px)",
             [align]: 0, minWidth: 200, background: "#fff",
             border: "1px solid var(--line)", borderRadius: "var(--radius-md)",
             boxShadow: "var(--shadow-card)", zIndex: 40, overflow: "hidden",
@@ -89,7 +88,7 @@ export default function ProfileMenu({ name = "User", mobile, onLogout, align = "
             Log out
           </button>
         </div>
-      )} 
+      )}
     </div>
   );
 }
