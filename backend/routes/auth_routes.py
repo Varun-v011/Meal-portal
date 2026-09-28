@@ -11,7 +11,7 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 def validate_registration(data):
     errors = []
-    name = (data.get("name") or "").strip()
+    name = (data.get("name") or "").strip().upper()
     mobile_number = (data.get("mobile_number") or "").strip()
     department = (data.get("department") or "").strip()
     email = (data.get("email") or "").strip() or None
@@ -47,7 +47,7 @@ def register():
 
     existing = User.query.filter(db.or_(*conflict_filters)).first()
     if existing:
-        if existing.name == name:
+        if existing.name.upper() == name:
             msg = "That name is already registered."
         elif existing.mobile_number == mobile_number:
             msg = "Mobile number already registered."
@@ -91,7 +91,7 @@ def forgot_password_verify():
     the same account before letting the user type a new password. Same
     generic error either way — never reveals which field was wrong."""
     data = request.get_json(silent=True) or {}
-    name = (data.get("name") or "").strip()
+    name = (data.get("name") or "").strip().upper()
     mobile_number = (data.get("mobile_number") or "").strip()
 
     errors = []
@@ -102,7 +102,7 @@ def forgot_password_verify():
     if errors:
         return jsonify({"errors": errors}), 400
 
-    user = User.query.filter_by(name=name).first()
+    user = User.query.filter(db.func.upper(User.name) == name).first()
     if not user or user.mobile_number != mobile_number:
         return jsonify({"errors": ["Name and mobile number do not match our records."]}), 401
 
