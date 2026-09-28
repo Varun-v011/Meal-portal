@@ -323,11 +323,6 @@ export default function AuthPage({ onLogin }) {
                   <TextInput placeholder="e.g. Rahul Sharma" value={form.name} onChange={update("name")} disabled={mode === "forgot" && verified} />
                 </Field>
               )}
-              {mode === "register" && (
-                <span className="body-font" style={{ color: "var(--bad-600)", fontSize: 10.5, marginTop: -10, marginBottom: -10 }}>
-                  Note: This Name is required for password reset and is Case-sensitive.
-                </span>
-              )}
 
               <Field label={mode === "login" ? "Registered mobile number" : "Mobile number"}>
                 <TextInput
