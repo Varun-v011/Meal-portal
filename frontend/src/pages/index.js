@@ -7,3 +7,4 @@ export { default as AuthPage } from "./AuthPage";
 // LoadingPage is a dev-only style guide for the skeleton components
 // (src/components/skeletons) — not part of the live nav/flow.
 export { default as LoadingPage } from "./LoadingPage";
+export { default as UsersPage } from "./UsersPage";

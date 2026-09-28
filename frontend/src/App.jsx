@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./styles/tokens.css";
 import { UserLayout, AdminLayout } from "./layouts";
-import { AuthPage, MealOrderPage, HistoryPage, ConfirmedPage, PendingPage, MealSettingsPage } from "./pages";
 import { subscribeToPush } from "./push";
+import { AuthPage, MealOrderPage, HistoryPage, ConfirmedPage, PendingPage, MealSettingsPage, UsersPage } from "./pages";
 
 /** Today's date as "Friday, 11 September 2026". */
 function formatTodayLong() {
@@ -24,6 +24,7 @@ const ADMIN_TITLES = {
   confirmed: { title: "Confirmed Orders" },
   history: { title: "All Order History",},
   mealSettings: { title: "Meal Settings", subtitle: "Availability, Pricing, and Closing times" },
+  users: { title: "Registered Users", subtitle: "Manage registered accounts" },
 };
 
 export default function App() {
@@ -68,6 +69,7 @@ const handleLogout = () => {
         {adminPage === "confirmed" && <ConfirmedPage adminId={currentUser.id} />}
         {adminPage === "history" && <HistoryPage title="All Order History" showEmployeeColumn currentUserId={currentUser.id} hidePending />}
         {adminPage === "mealSettings" && <MealSettingsPage adminId={currentUser.id} />}
+        {adminPage === "users" && <UsersPage adminId={currentUser.id} />}
       </AdminLayout>
     );
   }
