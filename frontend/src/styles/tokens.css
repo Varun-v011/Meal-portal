@@ -75,8 +75,7 @@ body{ margin:0; background:var(--canvas); }
 .sidebar-shell{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
 .sidebar-desktop{ display:flex; }
 .sidebar-content{ min-width:0; }
-
-/* ---------- Auth screen wrapper (fills viewport, no phone-in-desktop framing) ---------- */
+.filter-actions-row{ display: flex; align-items: center; gap: 10px; }
 .auth-screen{ min-height:100vh; width:100%; }
 
 @media (max-width: 860px){
