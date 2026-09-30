@@ -25,7 +25,6 @@ class User(db.Model):
             "role": self.role,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
-
 class AppSettings(db.Model):
     """Single-row table for app-wide toggles that aren't specific to any
     one meal. Always row id=1 — read/write that row directly."""
@@ -33,14 +32,18 @@ class AppSettings(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     screenshot_required = db.Column(db.Boolean, nullable=False, default=True)
+    tomorrow_closed = db.Column(db.Boolean, nullable=False, default=False)
 
     def to_dict(self):
-        return {"screenshot_required": self.screenshot_required}
+        return {
+            "screenshot_required": self.screenshot_required,
+            "tomorrow_closed": self.tomorrow_closed,
+        }
 
     @staticmethod
     def seed_defaults():
         if not AppSettings.query.get(1):
-            db.session.add(AppSettings(id=1, screenshot_required=True))
+            db.session.add(AppSettings(id=1, screenshot_required=True, tomorrow_closed=False))
             db.session.commit()
 
     @staticmethod

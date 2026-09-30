@@ -70,15 +70,21 @@ def get_app_settings():
     is currently required."""
     return jsonify(AppSettings.get().to_dict()), 200
 
-
 @settings_bp.route("/app-settings", methods=["PUT"])
 @admin_required
 def update_app_settings():
     data = request.get_json(silent=True) or {}
-    if "screenshot_required" not in data or not isinstance(data["screenshot_required"], bool):
-        return jsonify({"errors": ["screenshot_required must be true or false."]}), 400
-
     row = AppSettings.get()
-    row.screenshot_required = data["screenshot_required"]
+
+    if "screenshot_required" in data:
+        if not isinstance(data["screenshot_required"], bool):
+            return jsonify({"errors": ["screenshot_required must be true or false."]}), 400
+        row.screenshot_required = data["screenshot_required"]
+
+    if "tomorrow_closed" in data:
+        if not isinstance(data["tomorrow_closed"], bool):
+            return jsonify({"errors": ["tomorrow_closed must be true or false."]}), 400
+        row.tomorrow_closed = data["tomorrow_closed"]
+
     db.session.commit()
     return jsonify({"message": "App settings updated.", "settings": row.to_dict()}), 200

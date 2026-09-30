@@ -44,12 +44,16 @@ def create_order():
             ordered_for_date = datetime.strptime(ordered_for, "%Y-%m-%d").date()
         except ValueError:
             pass
-
     if not settings:
         errors.append("Meal type must be breakfast, lunch, or dinner.")
     else:
         if not settings.is_available:
             errors.append(f"{meal_type.capitalize()} is currently unavailable.")
+        elif (
+            ordered_for_date == date.today() + timedelta(days=1)
+            and AppSettings.get().tomorrow_closed
+        ):
+            errors.append("Ordering for tomorrow is currently closed.")
         # Closing time only gates orders placed for today — tomorrow's window
         # hasn't started yet, so nothing has "closed" for it.
         elif (
@@ -58,7 +62,7 @@ def create_order():
             and datetime.now().time() > settings.closing_time
         ):
             errors.append(f"{meal_type.capitalize()} ordering has closed for today.")
-
+            
     if not quantity or quantity < 1 or quantity > 10:
         errors.append("Quantity must be between 1 and 10.")
     if not ordered_for:

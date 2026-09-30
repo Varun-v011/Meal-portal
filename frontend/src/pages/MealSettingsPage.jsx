@@ -23,6 +23,9 @@ export default function MealSettingsPage({ adminId }) {
   const [screenshotRequired, setScreenshotRequired] = useState(true);
   const [savingScreenshot, setSavingScreenshot] = useState(false);
   const [savedScreenshot, setSavedScreenshot] = useState(false);
+  const [tomorrowClosed, setTomorrowClosed] = useState(false);
+  const [savingTomorrow, setSavingTomorrow] = useState(false);
+  const [savedTomorrow, setSavedTomorrow] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -47,12 +50,15 @@ export default function MealSettingsPage({ adminId }) {
       }
 
       try {
-        const res2 = await fetch("/api/app-settings");
-        const data2 = await res2.json();
-        if (typeof data2.screenshot_required === "boolean") {
-          setScreenshotRequired(data2.screenshot_required);
+          const res2 = await fetch("/api/app-settings");
+          const data2 = await res2.json();
+          if (typeof data2.screenshot_required === "boolean") {
+              setScreenshotRequired(data2.screenshot_required);
+          }
+          if (typeof data2.tomorrow_closed === "boolean") {
+              setTomorrowClosed(data2.tomorrow_closed);
         }
-      } catch {}
+        } catch {}
     })();
   }, []);
 
@@ -114,6 +120,25 @@ export default function MealSettingsPage({ adminId }) {
     }
   };
 
+  const handleToggleTomorrow = async (value) => {
+    setTomorrowClosed(value);
+    setSavingTomorrow(true);
+    setSavedTomorrow(false);
+    try {
+      const res = await fetch("/api/app-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "X-User-Id": String(adminId) },
+        body: JSON.stringify({ tomorrow_closed: value }),
+      });
+      if (res.ok) {
+        setSavedTomorrow(true);
+        setTimeout(() => setSavedTomorrow(false), 2000);
+      }
+    } finally {
+      setSavingTomorrow(false);
+    }
+  };
+
   if (loading) return null;
 
   return (
@@ -124,17 +149,38 @@ export default function MealSettingsPage({ adminId }) {
           <div className="body-font" style={{ fontSize: 13, color: "var(--ink-600)" }}>
             Require a payment screenshot before users can place an order.
           </div>
-<Switch
-  checked={screenshotRequired}
-  onChange={handleToggleScreenshot}
-  label
-  onLabels={["Mandatory", "Optional"]}
-/>
+          <Switch
+            checked={screenshotRequired}
+            onChange={handleToggleScreenshot}
+            label
+            onLabels={["Mandatory", "Optional"]}
+          />
         </div>
         {savingScreenshot && (
           <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ink-600)" }}>Saving...</div>
         )}
         {savedScreenshot && (
+          <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ok-600)", fontWeight: 700 }}>Saved</div>
+        )}
+      </Card>
+
+      <Card>
+        <CardHeader title="Tomorrow's Ordering" icon={Save} />
+        <div className="card-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="body-font" style={{ fontSize: 13, color: "var(--ink-600)" }}>
+            Close ordering for tomorrow across all meals — staff won't be able to order for tomorrow until this is turned back on.
+          </div>
+          <Switch
+            checked={tomorrowClosed}
+            onChange={handleToggleTomorrow}
+            label
+            onLabels={["Closed", "Open"]}
+          />
+        </div>
+        {savingTomorrow && (
+          <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ink-600)" }}>Saving...</div>
+        )}
+        {savedTomorrow && (
           <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ok-600)", fontWeight: 700 }}>Saved</div>
         )}
       </Card>

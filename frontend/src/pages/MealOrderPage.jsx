@@ -118,6 +118,8 @@ export default function MealOrderPage({ userId }) {
   const [submitErrors, setSubmitErrors] = useState([]);
   // "idle" | "submitting" | "slow" | "success"
   const [orderPhase, setOrderPhase] = useState("idle");
+  const [screenshotRequired, setScreenshotRequired] = useState(true);
+  const [tomorrowClosed, setTomorrowClosed] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -134,6 +136,27 @@ export default function MealOrderPage({ userId }) {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/app-settings");
+        const data = await res.json();
+        if (typeof data.screenshot_required === "boolean") {
+          setScreenshotRequired(data.screenshot_required);
+        }
+        if (typeof data.tomorrow_closed === "boolean") {
+          setTomorrowClosed(data.tomorrow_closed);
+        }
+      } catch {}
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (tomorrowClosed && day === "tomorrow") {
+      setDay("today");
+    }
+  }, [tomorrowClosed, day]);
 
   // Closing time only applies to "today" — tomorrow's window hasn't started yet
   // so there's nothing to have closed.
@@ -192,19 +215,6 @@ export default function MealOrderPage({ userId }) {
   const total = price * qty;
   const closedNotice = category && isClosedNow(selectedRow);
   const orderDate = dateForDay(day);
-  const [screenshotRequired, setScreenshotRequired] = useState(true);
-
-  useEffect(() => {
-  (async () => {
-    try {
-      const res = await fetch("/api/app-settings");
-      const data = await res.json();
-      if (typeof data.screenshot_required === "boolean") {
-        setScreenshotRequired(data.screenshot_required);
-      }
-    } catch {}
-  })();
-}, []);
 
   const resetForm = () => {
     setCategory("");
@@ -228,8 +238,8 @@ export default function MealOrderPage({ userId }) {
       form.append("quantity", qty);
       form.append("ordered_for", toIsoDate(orderDate));
       if (file) {
-  form.append("payment_screenshot", file);
-}
+        form.append("payment_screenshot", file);
+      }
 
       const res = await fetch("/api/orders", { method: "POST", body: form });
       const data = await res.json().catch(() => ({}));
@@ -263,8 +273,20 @@ export default function MealOrderPage({ userId }) {
         <CardHeader title="New Meal Order" icon={Utensils} />
         <div className="card-pad order-form-gap">
           <Field label="Order day">
-            <ToggleTabs value={day} onChange={setDay} options={[{ value: "today", label: "Today" }, { value: "tomorrow", label: "Tomorrow" }]} />
+          <ToggleTabs
+            value={day}
+            onChange={setDay}
+            options={[
+                { value: "today", label: "Today" },
+                { value: "tomorrow", label: "Tomorrow", disabled: tomorrowClosed },
+          ]}
+/>
           </Field>
+          {tomorrowClosed && (
+            <div className="body-font field-note" style={{ fontSize: 12.5, color: "var(--bad-600)", fontWeight: 600 }}>
+              Ordering for tomorrow is currently closed by the admin.
+            </div>
+          )}
 
           <Field label="Meal Category">
             <Select
@@ -318,16 +340,16 @@ export default function MealOrderPage({ userId }) {
             </div>
           )}
 
-<div className="body-font" style={{ fontSize: 12, color: "var(--bad-600)" }}>
-  {screenshotRequired && <><b>Note:</b> payment screenshot is required to proceed.</>}
-</div>
-<div style={{ display: "flex", gap: 10, width: "100%" }}>
-  <Button variant="secondary" full onClick={resetForm} disabled={submitting}>Cancel</Button>
-  <Button variant="primary" full disabled={!category || (screenshotRequired && !file) || closedNotice || submitting} onClick={handleSubmit}>
-    {submitting ? "Placing order..." : "Proceed"}
-  </Button>
-</div>
+          <div className="body-font" style={{ fontSize: 12, color: "var(--bad-600)" }}>
+            {screenshotRequired && <><b>Note:</b> payment screenshot is required to proceed.</>}
           </div>
+          <div style={{ display: "flex", gap: 10, width: "100%" }}>
+            <Button variant="secondary" full onClick={resetForm} disabled={submitting}>Cancel</Button>
+            <Button variant="primary" full disabled={!category || (screenshotRequired && !file) || closedNotice || submitting} onClick={handleSubmit}>
+              {submitting ? "Placing order..." : "Proceed"}
+            </Button>
+          </div>
+        </div>
       </Card>
     </div>
   );
