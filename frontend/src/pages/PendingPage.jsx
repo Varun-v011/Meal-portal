@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Clock, Check, X, Image as ImageIcon } from "lucide-react";
-import { Card, CardHeader, Table, Button, ImagePreviewModal } from "../components/ui";
+import { Card, CardHeader, Table, Button } from "../components/ui";
 import inputBase from "../components/ui/inputBase";
 import EmptyState from "../components/ui/EmptyState";
+import PaymentProofModal from "../components/meal/PaymentProofModal";
 
 const MEAL_LABELS = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" };
 
@@ -87,7 +88,7 @@ function PendingOrderCard({ order, onView, onConfirm, onReject, actioning }) {
         className="focus-ring body-font"
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "none", border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", padding: 8, fontSize: 12.5, fontWeight: 600, color: "var(--navy-900)", cursor: "pointer", marginBottom: 8 }}
       >
-        <ImageIcon size={14} /> Payment Screenshot
+        <ImageIcon size={14} /> Payment Proof
       </button>
 
       <div style={{ display: "flex", gap: 8 }}>
@@ -108,7 +109,7 @@ export default function PendingPage({ adminId }) {
   const [error, setError] = useState("");
   const [actioningId, setActioningId] = useState(null); // id currently confirming
   const [rejectTarget, setRejectTarget] = useState(null); // order object being rejected
-  const [previewSrc, setPreviewSrc] = useState(null);
+  const [proofOrder, setProofOrder] = useState(null); // order whose payment proof is open
 
   const fetchPending = async () => {
     setError("");
@@ -189,12 +190,12 @@ export default function PendingPage({ adminId }) {
                 { key: "ordered_for", label: "Ordered for", render: (r) => formatDate(r.ordered_for) },
                 {
                   key: "payment_screenshot",
-                  label: "Payment Screenshot",
+                  label: "Payment Proof",
 
                   render: (r) => (
                     <button
                       type="button"
-                      onClick={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+                      onClick={() => setProofOrder(r)}
                       className="focus-ring body-font"
                       style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--navy-900)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13.5 }}
                     >
@@ -232,7 +233,7 @@ export default function PendingPage({ adminId }) {
                   key={r.id}
                   order={r}
                   actioning={actioningId === r.id}
-                  onView={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+                  onView={() => setProofOrder(r)}
                   onConfirm={() => handleConfirm(r)}
                   onReject={() => setRejectTarget(r)}
                 />
@@ -251,7 +252,7 @@ export default function PendingPage({ adminId }) {
         />
       )}
 
-      {previewSrc && <ImagePreviewModal src={previewSrc} onClose={() => setPreviewSrc(null)} />}
+      {proofOrder && <PaymentProofModal order={proofOrder} onClose={() => setProofOrder(null)} />}
     </Card>
   );
 }

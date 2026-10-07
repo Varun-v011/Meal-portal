@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Calendar, Clock, Search, X, Image as ImageIcon } from "lucide-react";
-import { Card, CardHeader, Table, Button, TextInput, StatusBadge, ImagePreviewModal, inputBase } from "../components/ui";
+import { Card, CardHeader, Table, Button, TextInput, StatusBadge, inputBase } from "../components/ui";
+import PaymentProofModal from "../components/meal/PaymentProofModal";
 
 const MEAL_LABELS = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" };
 
@@ -62,7 +63,7 @@ function HistoryOrderCard({ order, showEmployeeColumn, onView }) {
         className="focus-ring body-font"
         style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: "none", border: "1px solid var(--line)", borderRadius: "var(--radius-sm)", padding: 8, fontSize: 12.5, fontWeight: 600, color: "var(--navy-900)", cursor: "pointer" }}
       >
-        <ImageIcon size={14} /> Payment Screenshot
+        <ImageIcon size={14} /> Payment Proof
       </button>
 
       {order.remarks && (
@@ -95,7 +96,7 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [previewSrc, setPreviewSrc] = useState(null);
+  const [proofOrder, setProofOrder] = useState(null); // order whose payment proof is open
 
   const fetchHistory = async (fromDate, toDate) => {
     setLoading(true);
@@ -168,11 +169,11 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
     { key: "amount", label: "Amount", render: (r) => `₹${r.amount}` },
     {
       key: "screenshot",
-      label: "Payment Screenshot",
+      label: "Payment Proof",
       render: (r) => (
         <button
           type="button"
-          onClick={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+          onClick={() => setProofOrder(r)}
           className="focus-ring body-font"
           style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--navy-900)", fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13.5 }}
         >
@@ -263,14 +264,14 @@ export default function HistoryPage({ title = "Meal order history", showEmployee
                 key={r.id}
                 order={r}
                 showEmployeeColumn={showEmployeeColumn}
-                onView={() => setPreviewSrc(`/api/uploads/${r.payment_screenshot}`)}
+                onView={() => setProofOrder(r)}
               />
             ))
           )}
         </div>
       </Card>
 
-      {previewSrc && <ImagePreviewModal src={previewSrc} onClose={() => setPreviewSrc(null)} />}
+      {proofOrder && <PaymentProofModal order={proofOrder} onClose={() => setProofOrder(null)} />}
     </div>
   );
 }
