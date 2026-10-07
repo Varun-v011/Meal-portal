@@ -33,17 +33,24 @@ class AppSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     screenshot_required = db.Column(db.Boolean, nullable=False, default=True)
     tomorrow_closed = db.Column(db.Boolean, nullable=False, default=False)
+    transaction_id_required = db.Column(db.Boolean, nullable=False, default=False)
 
     def to_dict(self):
         return {
             "screenshot_required": self.screenshot_required,
             "tomorrow_closed": self.tomorrow_closed,
+            "transaction_id_required": self.transaction_id_required,
         }
 
     @staticmethod
     def seed_defaults():
         if not AppSettings.query.get(1):
-            db.session.add(AppSettings(id=1, screenshot_required=True, tomorrow_closed=False))
+            db.session.add(AppSettings(
+                id=1,
+                screenshot_required=True,
+                tomorrow_closed=False,
+                transaction_id_required=False,
+            ))
             db.session.commit()
 
     @staticmethod

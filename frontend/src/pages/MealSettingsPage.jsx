@@ -26,6 +26,9 @@ export default function MealSettingsPage({ adminId }) {
   const [tomorrowClosed, setTomorrowClosed] = useState(false);
   const [savingTomorrow, setSavingTomorrow] = useState(false);
   const [savedTomorrow, setSavedTomorrow] = useState(false);
+  const [transactionIdRequired, setTransactionIdRequired] = useState(false);
+  const [savingTxn, setSavingTxn] = useState(false);
+  const [savedTxn, setSavedTxn] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -57,6 +60,9 @@ export default function MealSettingsPage({ adminId }) {
           }
           if (typeof data2.tomorrow_closed === "boolean") {
               setTomorrowClosed(data2.tomorrow_closed);
+        }
+        if (typeof data2.transaction_id_required === "boolean") {
+              setTransactionIdRequired(data2.transaction_id_required);
         }
         } catch {}
     })();
@@ -139,6 +145,26 @@ export default function MealSettingsPage({ adminId }) {
     }
   };
 
+
+  const handleToggleTxn = async (value) => {
+  setTransactionIdRequired(value);
+  setSavingTxn(true);
+  setSavedTxn(false);
+  try {
+    const res = await fetch("/api/app-settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", "X-User-Id": String(adminId) },
+      body: JSON.stringify({ transaction_id_required: value }),
+    });
+    if (res.ok) {
+      setSavedTxn(true);
+      setTimeout(() => setSavedTxn(false), 2000);
+    }
+  } finally {
+    setSavingTxn(false);
+  }
+};
+
   if (loading) return null;
 
   return (
@@ -184,6 +210,26 @@ export default function MealSettingsPage({ adminId }) {
           <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ok-600)", fontWeight: 700 }}>Saved</div>
         )}
       </Card>
+      <Card>
+  <CardHeader title="Transaction ID" icon={Save} />
+  <div className="card-pad" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div className="body-font" style={{ fontSize: 13, color: "var(--ink-600)" }}>
+      Ask users for a transaction ID when placing an order. When off, the field is hidden.
+    </div>
+    <Switch
+      checked={transactionIdRequired}
+      onChange={handleToggleTxn}
+      label
+      onLabels={["Mandatory", "Off"]}
+    />
+  </div>
+  {savingTxn && (
+    <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ink-600)" }}>Saving...</div>
+  )}
+  {savedTxn && (
+    <div className="card-pad" style={{ paddingTop: 0, fontSize: 12.5, color: "var(--ok-600)", fontWeight: 700 }}>Saved</div>
+  )}
+</Card>
 
       {Object.entries(MEAL_META).map(([mealType, meta]) => {
         const row = settings[mealType];

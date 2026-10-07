@@ -86,5 +86,10 @@ def update_app_settings():
             return jsonify({"errors": ["tomorrow_closed must be true or false."]}), 400
         row.tomorrow_closed = data["tomorrow_closed"]
 
+    if "transaction_id_required" in data:
+        if not isinstance(data["transaction_id_required"], bool):
+            return jsonify({"errors": ["transaction_id_required must be true or false."]}), 400
+        row.transaction_id_required = data["transaction_id_required"]
+
     db.session.commit()
     return jsonify({"message": "App settings updated.", "settings": row.to_dict()}), 200

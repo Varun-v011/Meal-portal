@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Calendar, Utensils, CheckCircle2, Loader2 } from "lucide-react";
-import { Card, CardHeader, Field, Select, Stepper, ToggleTabs, Button } from "../components/ui";
+import { Card, CardHeader, Field, Select, Stepper, ToggleTabs, Button, TextInput } from "../components/ui";
 import FileUploadCard from "../components/meal/FileUploadCard";
 
 const MEAL_LABELS = { breakfast: "Breakfast", lunch: "Lunch", dinner: "Dinner" };
@@ -120,6 +120,8 @@ export default function MealOrderPage({ userId }) {
   const [orderPhase, setOrderPhase] = useState("idle");
   const [screenshotRequired, setScreenshotRequired] = useState(true);
   const [tomorrowClosed, setTomorrowClosed] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
+  const [transactionIdRequired, setTransactionIdRequired] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -147,6 +149,9 @@ export default function MealOrderPage({ userId }) {
         }
         if (typeof data.tomorrow_closed === "boolean") {
           setTomorrowClosed(data.tomorrow_closed);
+        }
+        if (typeof data.transaction_id_required === "boolean") {
+          setTransactionIdRequired(data.transaction_id_required);
         }
       } catch {}
     })();
@@ -220,6 +225,7 @@ export default function MealOrderPage({ userId }) {
     setCategory("");
     setQty(1);
     setFile(null);
+    setTransactionId("");
   };
 
   const handleSubmit = async () => {
@@ -237,6 +243,9 @@ export default function MealOrderPage({ userId }) {
       form.append("meal_type", category);
       form.append("quantity", qty);
       form.append("ordered_for", toIsoDate(orderDate));
+      if (transactionIdRequired) {
+          form.append("transaction_id", transactionId.trim());
+      }
       if (file) {
         form.append("payment_screenshot", file);
       }
@@ -332,7 +341,16 @@ export default function MealOrderPage({ userId }) {
             </Field>
           </div>
 
-          <FileUploadCard file={file} onFile={setFile} total={total} />
+     
+
+          <FileUploadCard
+  file={file}
+  onFile={setFile}
+  total={total}
+  transactionIdRequired={transactionIdRequired}
+  transactionId={transactionId}
+  onTransactionId={setTransactionId}
+/>
 
           {submitErrors.length > 0 && (
             <div className="body-font" style={{ fontSize: 12.5, color: "var(--bad-600)" }}>
@@ -342,10 +360,11 @@ export default function MealOrderPage({ userId }) {
 
           <div className="body-font" style={{ fontSize: 12, color: "var(--bad-600)" }}>
             {screenshotRequired && <><b>Note:</b> payment screenshot is required to proceed.</>}
+            
           </div>
           <div style={{ display: "flex", gap: 10, width: "100%" }}>
             <Button variant="secondary" full onClick={resetForm} disabled={submitting}>Cancel</Button>
-            <Button variant="primary" full disabled={!category || (screenshotRequired && !file) || closedNotice || submitting} onClick={handleSubmit}>
+            <Button variant="primary" full disabled={!category || (screenshotRequired && !file) || (transactionIdRequired && !transactionId.trim()) || closedNotice || submitting} onClick={handleSubmit}>
               {submitting ? "Placing order..." : "Proceed"}
             </Button>
           </div>

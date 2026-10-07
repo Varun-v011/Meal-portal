@@ -1,1 +1,4 @@
 ALTER TABLE app_settings ADD COLUMN tomorrow_closed BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE meal_orders ADD COLUMN transaction_id VARCHAR(50) NULL;
+ALTER TABLE app_settings ADD COLUMN transaction_id_required BOOLEAN NOT NULL DEFAULT 0;

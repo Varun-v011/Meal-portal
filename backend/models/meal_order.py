@@ -13,6 +13,7 @@ class MealOrder(db.Model):
     order_date = db.Column(db.Date, nullable=False)
     ordered_for = db.Column(db.Date, nullable=False)
     payment_screenshot = db.Column(db.String(255), nullable=True)
+    transaction_id = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(20), default="pending")      # pending | confirmed | rejected
     remarks = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))

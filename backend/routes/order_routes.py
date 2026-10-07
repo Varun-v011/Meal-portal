@@ -25,6 +25,8 @@ def allowed_file(filename):
 def serve_upload(filename):
     uploads_root = os.path.join(os.getcwd(), "uploads")
     return send_from_directory(uploads_root, filename)
+
+
 @order_bp.route("/orders", methods=["POST"])
 def create_order():
     user_id = request.form.get("user_id")
@@ -32,6 +34,9 @@ def create_order():
     quantity = request.form.get("quantity", type=int)
     ordered_for = request.form.get("ordered_for")  # "YYYY-MM-DD"
     file = request.files.get("payment_screenshot")
+    transaction_id = (request.form.get("transaction_id") or "").strip()
+
+    app_settings = AppSettings.get()
 
     errors = []
     if not user_id or not User.query.get(user_id):
@@ -51,7 +56,7 @@ def create_order():
             errors.append(f"{meal_type.capitalize()} is currently unavailable.")
         elif (
             ordered_for_date == date.today() + timedelta(days=1)
-            and AppSettings.get().tomorrow_closed
+            and app_settings.tomorrow_closed
         ):
             errors.append("Ordering for tomorrow is currently closed.")
         # Closing time only gates orders placed for today — tomorrow's window
@@ -62,17 +67,23 @@ def create_order():
             and datetime.now().time() > settings.closing_time
         ):
             errors.append(f"{meal_type.capitalize()} ordering has closed for today.")
-            
+
     if not quantity or quantity < 1 or quantity > 10:
         errors.append("Quantity must be between 1 and 10.")
     if not ordered_for:
         errors.append("Ordered-for date is required.")
-    screenshot_required = AppSettings.get().screenshot_required
+
+    screenshot_required = app_settings.screenshot_required
     if not file or file.filename == "":
         if screenshot_required:
             errors.append("Payment screenshot is required.")
     elif not allowed_file(file.filename):
         errors.append("Screenshot must be JPG, JPEG, or PNG.")
+
+    if app_settings.transaction_id_required and not transaction_id:
+        errors.append("Transaction ID is required.")
+    if len(transaction_id) > 50:
+        errors.append("Transaction ID must be 50 characters or fewer.")
 
     if errors:
         return jsonify({"errors": errors}), 400
@@ -95,13 +106,15 @@ def create_order():
         order_date=date.today(),
         ordered_for=ordered_for_date,
         payment_screenshot=screenshot_path,
+        transaction_id=transaction_id or None,
         status="pending",
     )
     db.session.add(order)
     db.session.commit()
 
     return jsonify({"message": "Order placed, pending confirmation.", "order_id": order.id}), 201
-    
+
+
 @order_bp.route("/orders/pending", methods=["GET"])
 @admin_required
 def pending_orders():
@@ -188,6 +201,7 @@ def _order_dict(o):
         "ordered_for": o.ordered_for.isoformat(),
         "created_at": created_at_ist.strftime("%d.%m.%Y %H:%M"),
         "payment_screenshot": o.payment_screenshot,
+        "transaction_id": o.transaction_id,
         "status": o.status,
         "remarks": o.remarks,
     }

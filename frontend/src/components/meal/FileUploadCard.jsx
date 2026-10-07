@@ -1,11 +1,21 @@
 import React, { useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import Button from "../ui/Button";
+import { TextInput } from "../ui";
 import UpiLogo from "../ui/UpiLogo";
 import useIsMobile from "../../hooks/useIsMobile";
 import { buildUpiLink, buildUpiQrImageUrl } from "../../config/payment";
 
-export default function FileUploadCard({ file, onFile, qrLabel = "Thangam Residency", total = 0, note }) {
+export default function FileUploadCard({
+  file,
+  onFile,
+  qrLabel = "Thangam Residency",
+  total = 0,
+  note,
+  transactionIdRequired = false,
+  transactionId = "",
+  onTransactionId,
+}) {
   const inputRef = useRef(null);
   const isMobile = useIsMobile();
   const [zoomed, setZoomed] = useState(false);
@@ -71,6 +81,24 @@ export default function FileUploadCard({ file, onFile, qrLabel = "Thangam Reside
         <div className="body-font" style={{ fontSize: 13.5, color: "var(--ink-900)", marginBottom: 10 }}>
           {isMobile ? "Pay via UPI button or QR, then upload the payment screenshot." : "Scan, pay via UPI, and upload the payment screenshot."}
         </div>
+
+      {transactionIdRequired && (
+        <div style={{ marginBottom: 12, maxWidth: 350 }}>
+          <div
+            className="body-font"
+            style={{ fontSize: 11.5, fontWeight: 700, color: "var(--ink-600)", letterSpacing: ".04em", textTransform: "uppercase", marginBottom: 6 }}
+          >
+            Transaction ID <span style={{ color: "var(--bad-600)", marginLeft: 4 }}>*</span>
+          </div>
+          <TextInput
+            value={transactionId}
+            onChange={(e) => onTransactionId?.(e.target.value)}
+            placeholder="Enter Transaction ID"
+            maxLength={50}
+          />
+        </div>
+      )}
+
         <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png" style={{ display: "none" }} onChange={(e) => onFile(e.target.files?.[0] || null)} />
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Button variant="secondary" size="sm" icon={Upload} onClick={() => inputRef.current?.click()}>Choose file</Button>

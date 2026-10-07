@@ -19,6 +19,8 @@ CORS(app)
 
 # MariaDB connection string: mysql+pymysql://<user>:<password>@localhost:<port>/<database>
 #in this pc pass:admin123 for server pc pass:admin1234
+# localhot db name: web_db pass: admin123
+# server db name: mealportal_db pass: admin1234
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://web_user:admin1234@127.0.0.1:3306/mealportal_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
