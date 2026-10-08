@@ -4,3 +4,22 @@ ALTER TABLE meal_orders ADD COLUMN transaction_id VARCHAR(50) NULL;
 ALTER TABLE app_settings ADD COLUMN transaction_id_required BOOLEAN NOT NULL DEFAULT 0;
 
 ALTER TABLE meal_orders MODIFY payment_screenshot VARCHAR(255) NULL;
+
+
+# Caddy
+C:\tools\nssm.exe install Caddy "C:\caddy\caddy.exe" "run --config C:\caddy\Caddyfile"
+C:\tools\nssm.exe set Caddy AppDirectory "C:\caddy"
+C:\tools\nssm.exe set Caddy Start SERVICE_AUTO_START
+
+# Python app (example uses waitress; see note below)
+C:\tools\nssm.exe install PyApp "C:\app\venv\Scripts\python.exe" "-m waitress --listen=127.0.0.1:5000 app:app"
+C:\tools\nssm.exe set PyApp AppDirectory "C:\app"
+C:\tools\nssm.exe set PyApp Start SERVICE_AUTO_START
+C:\tools\nssm.exe set PyApp AppStdout "C:\app\logs\out.log"
+C:\tools\nssm.exe set PyApp AppStderr "C:\app\logs\err.log"
+
+# Start the app before Caddy
+C:\tools\nssm.exe set Caddy DependOnService PyApp
+
+Start-Service PyApp
+Start-Service Caddy
